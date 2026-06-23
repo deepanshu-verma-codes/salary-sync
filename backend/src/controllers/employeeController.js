@@ -8,6 +8,7 @@ const getStats = (req, res) => {
       SUM(salary) as totalPayroll,
       AVG(salary) as averageSalary
     FROM employees
+    WHERE role != 'ADMIN'
   `;
   
   db.get(query, [], (err, row) => {
@@ -20,6 +21,7 @@ const getDistributionByDepartment = (req, res) => {
   const query = `
     SELECT department, COUNT(*) as count, AVG(salary) as averageSalary
     FROM employees
+    WHERE role != 'ADMIN'
     GROUP BY department
     ORDER BY count DESC
   `;
@@ -34,6 +36,7 @@ const getDistributionByCountry = (req, res) => {
   const query = `
     SELECT country, COUNT(*) as count, AVG(salary) as averageSalary
     FROM employees
+    WHERE role != 'ADMIN'
     GROUP BY country
     ORDER BY count DESC
   `;

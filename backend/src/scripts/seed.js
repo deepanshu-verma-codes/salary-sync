@@ -29,7 +29,7 @@ async function seed() {
     await new Promise((resolve, reject) => {
       db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, experience, date_joined) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-        ['Admin User', 'iAmAdmin@yopmail.com', adminHash, 'ADMIN', 'CEO', 'Management', 'USA', 500000, 10, '2020-01-01'],
+        ['Admin User', 'iAmAdmin@yopmail.com', adminHash, 'ADMIN', 'CEO', 'Management', 'USA', 0, 10, '2020-01-01'],
         err => err ? reject(err) : resolve()
       );
     });

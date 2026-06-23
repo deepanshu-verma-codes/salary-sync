@@ -258,7 +258,7 @@ export default function EmployeeTable() {
                       </span>
                     </td>
                     <td className="p-4 text-slate-600">{emp.department}</td>
-                    <td className="p-4 font-medium text-slate-900">{formatCurrency(emp.salary)}</td>
+                    <td className="p-4 font-medium text-slate-900">{emp.role === 'ADMIN' ? <span className="text-slate-400 italic">N/A (Founder/CEO)</span> : formatCurrency(emp.salary)}</td>
                     <td className="p-4 flex items-center gap-2">
                       {user?.role === 'ADMIN' && emp.role !== 'ADMIN' && (
                         <>

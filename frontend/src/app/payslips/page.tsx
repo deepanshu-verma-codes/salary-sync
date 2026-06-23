@@ -132,7 +132,7 @@ export default function PayslipsPage() {
                 setFormData({...formData, employee_id: empId, amount: emp ? Math.round(emp.salary / 12).toString() : ''});
               }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 <option value="">Select Employee</option>
-                {employees.map(e => <option key={e.id} value={e.id}>{e.name} ({e.email})</option>)}
+                {employees.filter(e => e.role !== 'ADMIN').map(e => <option key={e.id} value={e.id}>{e.name} ({e.email})</option>)}
               </select>
             </div>
             <div>
