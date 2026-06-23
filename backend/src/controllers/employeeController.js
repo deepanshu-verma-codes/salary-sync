@@ -145,6 +145,30 @@ const updateRole = (req, res) => {
   });
 };
 
+const editUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, password } = req.body;
+
+  try {
+    if (password) {
+      const hash = await bcrypt.hash(password, 10);
+      db.run('UPDATE employees SET name = ?, password = ? WHERE id = ?', [name, hash, id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ success: true });
+      });
+    } else {
+      db.run('UPDATE employees SET name = ? WHERE id = ?', [name, id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ success: true });
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getStats,
   getDistributionByDepartment,
@@ -153,5 +177,6 @@ module.exports = {
   getEmployeeById,
   addUser,
   deleteUser,
-  updateRole
+  updateRole,
+  editUser
 };

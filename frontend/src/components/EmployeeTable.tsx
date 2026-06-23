@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getEmployees, deleteUser, updateRole, addUser } from "@/lib/api";
+import { getEmployees, deleteUser, updateRole, addUser, editUser } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Trash2, ShieldAlert, ShieldOff, UserPlus } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Trash2, ShieldAlert, ShieldOff, UserPlus, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import Modal from "./Modal";
 
@@ -23,6 +23,9 @@ export default function EmployeeTable() {
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [roleUpdate, setRoleUpdate] = useState<{ id: number, role: 'SUBADMIN' | 'USER' } | null>(null);
+
+  const [editUserModal, setEditUserModal] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState({ name: '', password: '' });
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -107,6 +110,19 @@ export default function EmployeeTable() {
     }
   };
 
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editUserModal) return;
+    try {
+      await editUser(editUserModal.id, editFormData);
+      toast.success('User updated successfully');
+      setEditUserModal(null);
+      fetchData();
+    } catch(err: any) {
+      toast.error(err.response?.data?.error || 'Failed to update user');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete User">
@@ -127,6 +143,23 @@ export default function EmployeeTable() {
           <button onClick={() => setRoleUpdate(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
           <button onClick={executeUpdateRole} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-colors">Confirm</button>
         </div>
+      </Modal>
+
+      <Modal isOpen={editUserModal !== null} onClose={() => setEditUserModal(null)} title="Edit User">
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+            <input type="text" required minLength={2} value={editFormData.name} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">New Password (leave blank to keep current)</label>
+            <input type="password" minLength={6} placeholder="Min 6 characters" value={editFormData.password} onChange={e => setEditFormData({...editFormData, password: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
+            <button type="button" onClick={() => setEditUserModal(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
+            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">Save Changes</button>
+          </div>
+        </form>
       </Modal>
 
       {/* Controls */}
@@ -262,6 +295,9 @@ export default function EmployeeTable() {
                     <td className="p-4 flex items-center gap-2">
                       {user?.role === 'ADMIN' && emp.role !== 'ADMIN' && (
                         <>
+                          <button onClick={() => { setEditUserModal(emp); setEditFormData({ name: emp.name, password: '' }); }} title="Edit Name/Password" className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                            <Pencil className="w-4 h-4" />
+                          </button>
                           {emp.role === 'SUBADMIN' ? (
                             <button onClick={() => setRoleUpdate({ id: emp.id, role: 'USER' })} title="Remove from Subadmin" className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg">
                               <ShieldOff className="w-4 h-4" />

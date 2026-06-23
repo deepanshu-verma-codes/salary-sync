@@ -84,6 +84,11 @@ export const deleteUser = async (id: number) => {
   return res.data;
 };
 
+export const editUser = async (id: number, data: any) => {
+  const res = await api.put(`/employees/${id}`, data);
+  return res.data;
+};
+
 export const updateRole = async (id: number, role: string) => {
   const res = await api.put(`/employees/${id}/role`, { role });
   return res.data;

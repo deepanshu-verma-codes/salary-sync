@@ -11,6 +11,7 @@ router.get('/:id', authenticate, controller.getEmployeeById);
 
 router.post('/', authenticate, requireRole(['ADMIN', 'SUBADMIN']), controller.addUser);
 router.delete('/:id', authenticate, requireRole(['ADMIN']), controller.deleteUser);
+router.put('/:id', authenticate, requireRole(['ADMIN']), controller.editUser);
 router.put('/:id/role', authenticate, requireRole(['ADMIN']), controller.updateRole);
 
 module.exports = router;
