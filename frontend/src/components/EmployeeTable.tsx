@@ -153,7 +153,7 @@ export default function EmployeeTable() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
-              <input type="text" required placeholder="John Doe" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="text" required minLength={2} maxLength={50} pattern="^[a-zA-Z\s]+$" title="Name should only contain letters and spaces" placeholder="John Doe" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
@@ -161,7 +161,7 @@ export default function EmployeeTable() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-              <input type="password" required placeholder="Password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="password" required minLength={6} title="Password must be at least 6 characters long" placeholder="Min 6 characters" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
@@ -172,13 +172,13 @@ export default function EmployeeTable() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Designation</label>
-              <input type="text" required placeholder="Software Engineer" value={formData.job_title} onChange={e => setFormData({...formData, job_title: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="text" required minLength={2} title="Designation is required" placeholder="Software Engineer" value={formData.job_title} onChange={e => setFormData({...formData, job_title: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
               {isOtherDept ? (
                 <div className="flex gap-2">
-                  <input type="text" required placeholder="Type department..." value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                  <input type="text" required minLength={2} placeholder="Type department..." value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                   <button type="button" onClick={() => { setIsOtherDept(false); setFormData({...formData, department: 'Engineering'}); }} className="px-3 py-2 text-sm bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Cancel</button>
                 </div>
               ) : (
@@ -196,19 +196,19 @@ export default function EmployeeTable() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Experience (Years)</label>
-              <input type="number" required placeholder="5" value={formData.experience} onChange={e => setFormData({...formData, experience: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="number" required min={0} max={60} title="Experience must be between 0 and 60 years" placeholder="5" value={formData.experience} onChange={e => setFormData({...formData, experience: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Yearly Salary (₹)</label>
-              <input type="number" required placeholder="100000" value={formData.salary} onChange={e => setFormData({...formData, salary: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="number" required min={1000} title="Salary must be at least ₹1,000" placeholder="100000" value={formData.salary || ''} onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Country</label>
-              <input type="text" required placeholder="USA" value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="text" required minLength={2} pattern="^[a-zA-Z\s]+$" title="Country should only contain letters and spaces" placeholder="USA" value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Date Joined</label>
-              <input type="date" required value={formData.date_joined} onChange={e => setFormData({...formData, date_joined: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="date" required max={new Date().toISOString().split('T')[0]} title="Date joined cannot be in the future" value={formData.date_joined} onChange={e => setFormData({...formData, date_joined: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
