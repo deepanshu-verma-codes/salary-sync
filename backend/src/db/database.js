@@ -42,6 +42,7 @@ const initDb = () => {
           month TEXT NOT NULL,
           year INTEGER NOT NULL,
           amount REAL NOT NULL,
+          deductions REAL DEFAULT 0,
           paid_at TEXT NOT NULL,
           FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
         )

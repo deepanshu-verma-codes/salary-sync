@@ -1,18 +1,18 @@
 const { db } = require('../db/database');
 
 const createPayslip = (req, res) => {
-  const { employee_id, month, year, amount } = req.body;
+  const { employee_id, month, year, amount, deductions } = req.body;
   if (!employee_id || !month || !year || !amount) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
   const paid_at = new Date().toISOString().split('T')[0];
 
-  db.run(`INSERT INTO payslips (employee_id, month, year, amount, paid_at) VALUES (?, ?, ?, ?, ?)`,
-    [employee_id, month, year, amount, paid_at],
+  db.run(`INSERT INTO payslips (employee_id, month, year, amount, deductions, paid_at) VALUES (?, ?, ?, ?, ?, ?)`,
+    [employee_id, month, year, amount, deductions || 0, paid_at],
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, employee_id, month, year, amount, paid_at });
+      res.json({ id: this.lastID, employee_id, month, year, amount, deductions: deductions || 0, paid_at });
     }
   );
 };

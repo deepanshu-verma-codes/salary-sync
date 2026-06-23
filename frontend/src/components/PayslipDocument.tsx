@@ -49,8 +49,8 @@ export default function PayslipDocument({ slip }: { slip: any }) {
           <tr>
             <td className="py-4 px-4 font-medium text-slate-800">Basic Salary</td>
             <td className="py-4 px-4 text-right font-medium text-slate-900">{formatCurrency(slip.amount)}</td>
-            <td className="py-4 px-4 text-slate-500 border-l border-slate-200">Tax / PF</td>
-            <td className="py-4 px-4 text-right text-slate-500">{formatCurrency(0)}</td>
+            <td className="py-4 px-4 text-slate-500 border-l border-slate-200">Tax / PF / Other</td>
+            <td className="py-4 px-4 text-right text-slate-500">{formatCurrency(slip.deductions || 0)}</td>
           </tr>
         </tbody>
       </table>
@@ -58,9 +58,9 @@ export default function PayslipDocument({ slip }: { slip: any }) {
       <div className="flex justify-end">
         <div className="w-64 bg-slate-50 p-4 rounded-xl border border-slate-200">
           <p className="flex justify-between text-sm mb-2"><span className="text-slate-500">Total Earnings:</span> <span className="font-semibold text-slate-900">{formatCurrency(slip.amount)}</span></p>
-          <p className="flex justify-between text-sm mb-4"><span className="text-slate-500">Total Deductions:</span> <span className="font-semibold text-slate-900">{formatCurrency(0)}</span></p>
+          <p className="flex justify-between text-sm mb-4"><span className="text-slate-500">Total Deductions:</span> <span className="font-semibold text-slate-900">{formatCurrency(slip.deductions || 0)}</span></p>
           <div className="pt-3 border-t border-slate-200">
-            <p className="flex justify-between"><span className="font-bold text-slate-800">Net Pay:</span> <span className="font-black text-xl text-blue-600">{formatCurrency(slip.amount)}</span></p>
+            <p className="flex justify-between"><span className="font-bold text-slate-800">Net Pay:</span> <span className="font-black text-xl text-blue-600">{formatCurrency(slip.amount - (slip.deductions || 0))}</span></p>
           </div>
         </div>
       </div>
