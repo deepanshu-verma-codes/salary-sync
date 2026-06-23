@@ -51,18 +51,23 @@
     border-color: var(--border);
   }
   body {
-    background-color: var(--background);
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(253,16%,7%,0.03) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225,39%,30%,0.03) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,49%,30%,0.04) 0, transparent 50%);
+    background-attachment: fixed;
     color: var(--foreground);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.02);
 }
 .dark .glass-card {
   background: rgba(15, 23, 42, 0.7);

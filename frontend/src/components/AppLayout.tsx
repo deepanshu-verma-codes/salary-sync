@@ -34,35 +34,36 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col shadow-2xl z-10 hidden md:flex">
+      <aside className="w-64 bg-white/40 backdrop-blur-2xl border-r border-white/60 text-slate-900 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 hidden md:flex">
         <div className="p-6">
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             Salary Sync
           </h1>
-          <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">{user?.role} PANEL</p>
+          <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">{user?.role} PANEL</p>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-4">
-          <Link href="/dashboard" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${pathname.startsWith('/dashboard') ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-800 text-slate-300'}`}>
-            <LayoutDashboard className={`w-5 h-5 ${pathname.startsWith('/dashboard') ? 'text-white' : 'text-slate-400'}`} />
-            <span className="font-medium">Dashboard</span>
+          <Link href="/dashboard" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${pathname.startsWith('/dashboard') ? 'bg-white/80 text-blue-600 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white' : 'hover:bg-white/40 text-slate-600 hover:text-slate-900'}`}>
+            <LayoutDashboard className={`w-5 h-5 ${pathname.startsWith('/dashboard') ? 'text-blue-600' : 'text-slate-400'}`} />
+            <span className="font-semibold">Dashboard</span>
           </Link>
           {(user?.role === 'ADMIN' || user?.role === 'SUBADMIN') && (
-            <Link href="/employees" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${pathname.startsWith('/employees') ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-800 text-slate-300'}`}>
-              <Users className={`w-5 h-5 ${pathname.startsWith('/employees') ? 'text-white' : 'text-slate-400'}`} />
-              <span className="font-medium">Employees</span>
+            <Link href="/employees" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${pathname.startsWith('/employees') ? 'bg-white/80 text-blue-600 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white' : 'hover:bg-white/40 text-slate-600 hover:text-slate-900'}`}>
+              <Users className={`w-5 h-5 ${pathname.startsWith('/employees') ? 'text-blue-600' : 'text-slate-400'}`} />
+              <span className="font-semibold">Employees</span>
             </Link>
           )}
-          <Link href="/payslips" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${pathname.startsWith('/payslips') ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-800 text-slate-300'}`}>
-            <FileText className={`w-5 h-5 ${pathname.startsWith('/payslips') ? 'text-white' : 'text-slate-400'}`} />
-            <span className="font-medium">Payslips</span>
+          <Link href="/payslips" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${pathname.startsWith('/payslips') ? 'bg-white/80 text-blue-600 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white' : 'hover:bg-white/40 text-slate-600 hover:text-slate-900'}`}>
+            <FileText className={`w-5 h-5 ${pathname.startsWith('/payslips') ? 'text-blue-600' : 'text-slate-400'}`} />
+            <span className="font-semibold">Payslips</span>
           </Link>
         </nav>
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-slate-200/50 m-4 rounded-2xl bg-white/30 backdrop-blur-md shadow-sm">
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <p className="font-medium truncate">{user?.name}</p>
+              <p className="font-bold text-slate-800 truncate">{user?.name}</p>
+              <p className="text-xs text-slate-500 truncate">{user?.email}</p>
             </div>
-            <button onClick={handleLogout} className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">
+            <button onClick={handleLogout} className="p-2 hover:bg-white/80 rounded-xl text-slate-400 hover:text-red-500 transition-colors shadow-sm bg-white/50 border border-white">
               <LogOut className="w-4 h-4" />
             </button>
           </div>

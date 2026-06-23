@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import AppLayout from "@/components/AppLayout";
 
-const inter = Inter({ subsets: ["latin"] });
+const font = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ACME Salary Sync",
@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased`}>
+      <body className={`${font.className} text-slate-900 antialiased`}>
         <AppLayout>{children}</AppLayout>
       </body>
     </html>
