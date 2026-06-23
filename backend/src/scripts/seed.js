@@ -1,5 +1,5 @@
 const { db, initDb } = require('../db/database');
-const { faker } = require('@faker-js/faker');
+
 const bcrypt = require('bcryptjs');
 
 const SEED_COUNT = 10000;
@@ -10,6 +10,7 @@ const countries = ['USA', 'UK', 'India', 'Canada', 'Australia', 'Germany', 'Fran
 
 async function seed() {
   try {
+    const { faker } = await import('@faker-js/faker');
     // Recreate DB completely for new schema
     await new Promise((resolve, reject) => {
       db.run('DROP TABLE IF EXISTS payslips', err => err ? reject(err) : resolve());
