@@ -77,7 +77,7 @@ const getEmployees = (req, res) => {
   
   const countQuery = `SELECT COUNT(*) as total FROM employees ${whereSql}`;
   // don't select password
-  const dataQuery = `SELECT id, name, email, role, job_title, department, country, salary, date_joined FROM employees ${whereSql} ORDER BY ${sortCol} ${order} LIMIT ? OFFSET ?`;
+  const dataQuery = `SELECT id, name, email, role, job_title, department, country, salary, experience, date_joined FROM employees ${whereSql} ORDER BY ${sortCol} ${order} LIMIT ? OFFSET ?`;
   
   db.get(countQuery, params, (err, countRow) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -100,7 +100,7 @@ const getEmployees = (req, res) => {
 
 const getEmployeeById = (req, res) => {
   const { id } = req.params;
-  db.get('SELECT id, name, email, role, job_title, department, country, salary, date_joined FROM employees WHERE id = ?', [id], (err, row) => {
+  db.get('SELECT id, name, email, role, job_title, department, country, salary, experience, date_joined FROM employees WHERE id = ?', [id], (err, row) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!row) return res.status(404).json({ error: 'Employee not found' });
     res.json(row);
@@ -147,23 +147,36 @@ const updateRole = (req, res) => {
 
 const editUser = async (req, res) => {
   const { id } = req.params;
-  const { name, password } = req.body;
+  const { name, password, salary, experience } = req.body;
 
   try {
+    let query = 'UPDATE employees SET name = ?';
+    let params = [name];
+
+    if (salary !== undefined) {
+      query += ', salary = ?';
+      params.push(salary);
+    }
+
+    if (experience !== undefined) {
+      query += ', experience = ?';
+      params.push(experience);
+    }
+
     if (password) {
       const hash = await bcrypt.hash(password, 10);
-      db.run('UPDATE employees SET name = ?, password = ? WHERE id = ?', [name, hash, id], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
-        res.json({ success: true });
-      });
-    } else {
-      db.run('UPDATE employees SET name = ? WHERE id = ?', [name, id], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
-        res.json({ success: true });
-      });
+      query += ', password = ?';
+      params.push(hash);
     }
+
+    query += ' WHERE id = ?';
+    params.push(id);
+
+    db.run(query, params, function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+      res.json({ success: true });
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

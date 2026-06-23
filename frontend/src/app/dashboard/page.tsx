@@ -36,6 +36,8 @@ export default function DashboardPage() {
     </div>
   );
 
+  console.log("profile --->",profile)
+
   return (
     <div className="p-8 max-w-7xl mx-auto w-full animate-fade-in">
       <div className="mb-8">
