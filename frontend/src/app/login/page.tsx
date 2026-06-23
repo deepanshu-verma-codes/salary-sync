@@ -17,6 +17,7 @@ export default function LoginPage() {
     try {
       const res = await login({ email, password });
       localStorage.setItem("token", res.token);
+      localStorage.setItem("refreshToken", res.refreshToken);
       localStorage.setItem("user", JSON.stringify(res.user));
       toast.success("Login successful!");
       router.push("/dashboard");

@@ -14,6 +14,36 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) throw new Error('No refresh token');
+        
+        const res = await axios.post(`${api.defaults.baseURL}/auth/refresh`, { refreshToken });
+        const { token, refreshToken: newRefreshToken } = res.data;
+        
+        localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', newRefreshToken);
+        
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        return api(originalRequest);
+      } catch (err) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        if (typeof window !== 'undefined') window.location.href = '/';
+        return Promise.reject(err);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const login = async (credentials: any) => {
   const res = await api.post('/auth/login', credentials);
   return res.data;

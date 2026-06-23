@@ -19,6 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     router.push('/');
   };

@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../middleware/authMiddleware');
 
+const REFRESH_SECRET = process.env.REFRESH_SECRET || 'super-secret-refresh-key';
+
 const login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -19,11 +21,18 @@ const login = (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role, name: user.name },
       JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '15m' }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      REFRESH_SECRET,
+      { expiresIn: '7d' }
     );
 
     res.json({
       token,
+      refreshToken,
       user: {
         id: user.id,
         name: user.name,
@@ -34,4 +43,31 @@ const login = (req, res) => {
   });
 };
 
-module.exports = { login };
+const refresh = (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) return res.status(401).json({ error: 'Refresh token required' });
+
+  jwt.verify(refreshToken, REFRESH_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ error: 'Invalid refresh token' });
+
+    db.get('SELECT id, email, role, name FROM employees WHERE id = ?', [decoded.id], (err, user) => {
+      if (err || !user) return res.status(403).json({ error: 'User not found' });
+
+      const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role, name: user.name },
+        JWT_SECRET,
+        { expiresIn: '15m' }
+      );
+      
+      const newRefreshToken = jwt.sign(
+        { id: user.id },
+        REFRESH_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({ token, refreshToken: newRefreshToken });
+    });
+  });
+};
+
+module.exports = { login, refresh };
