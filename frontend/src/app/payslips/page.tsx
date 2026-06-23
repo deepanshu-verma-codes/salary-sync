@@ -31,6 +31,7 @@ export default function PayslipsPage() {
   const [formData, setFormData] = useState({ employee_id: '', month: 'January', year: currentYear, amount: '' });
   const [deductions, setDeductions] = useState([{ name: 'Tax / PF', amount: 0 }]);
   const [empSearchQuery, setEmpSearchQuery] = useState('');
+  const [debouncedEmpSearch, setDebouncedEmpSearch] = useState('');
   const [showEmpDropdown, setShowEmpDropdown] = useState(false);
 
   const fetchData = useCallback(async () => {
@@ -51,12 +52,27 @@ export default function PayslipsPage() {
       if (parsed.role === 'ADMIN') {
         setActiveTab('COMPANY');
       }
-      if (parsed.role !== 'USER') {
-        getEmployees({ limit: 1000, sortBy: 'id', sortDir: 'DESC' }).then(res => setEmployees(res.data));
-      }
     }
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedEmpSearch(empSearchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [empSearchQuery]);
+
+  useEffect(() => {
+    if (user?.role && user.role !== 'USER') {
+      getEmployees({ 
+        limit: 100, 
+        search: debouncedEmpSearch,
+        sortBy: 'id', 
+        sortDir: 'DESC' 
+      }).then(res => setEmployees(res.data)).catch(console.error);
+    }
+  }, [debouncedEmpSearch, user?.role]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,7 +240,7 @@ export default function PayslipsPage() {
                 
                 if (user?.role !== 'USER') {
                   try {
-                    const res = await getEmployees({ limit: 1000, sortBy: 'id', sortDir: 'DESC' });
+                    const res = await getEmployees({ limit: 100, search: '', sortBy: 'id', sortDir: 'DESC' });
                     setEmployees(res.data);
                   } catch (err) {
                     console.error("Failed to sync latest employees", err);
@@ -254,25 +270,10 @@ export default function PayslipsPage() {
                     required={!formData.employee_id}
                     placeholder="Search employee..."
                     value={empSearchQuery}
-                    onChange={async (e) => {
-                      const query = e.target.value;
-                      setEmpSearchQuery(query);
+                    onChange={(e) => {
+                      setEmpSearchQuery(e.target.value);
                       setShowEmpDropdown(true);
                       if (formData.employee_id) setFormData({...formData, employee_id: '', amount: ''});
-                      
-                      if (user?.role !== 'USER') {
-                        try {
-                          const res = await getEmployees({ 
-                            limit: 100, 
-                            search: query,
-                            sortBy: 'id', 
-                            sortDir: 'DESC' 
-                          });
-                          setEmployees(res.data);
-                        } catch (err) {
-                          console.error("Live search failed", err);
-                        }
-                      }
                     }}
                     onFocus={() => setShowEmpDropdown(true)}
                     className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
