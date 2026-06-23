@@ -27,7 +27,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isPublic = pathname === '/' || pathname === '/login';
 
   if (isPublic) {
-    return <>{children}</>;
+    return (
+      <>
+        <Toaster position="top-right" />
+        {children}
+      </>
+    );
   }
 
   if (!user) return <div className="p-8">Loading...</div>;
