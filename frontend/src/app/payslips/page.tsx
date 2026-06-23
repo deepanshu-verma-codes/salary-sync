@@ -261,8 +261,8 @@ export default function PayslipsPage() {
                   <td className="p-4 text-slate-500">{slip.paid_at}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-4">
-                      <button onClick={() => setViewPayslip(slip)} className="flex items-center gap-1.5 text-slate-600 hover:text-blue-600 font-medium transition-colors">
-                        <Eye className="w-4 h-4" /> View
+                      <button onClick={() => setViewPayslip(slip)} title="View" className="flex items-center justify-center p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors">
+                        <Eye className="w-5 h-5" />
                       </button>
                       <button 
                         onClick={async () => {
@@ -290,10 +290,10 @@ export default function PayslipsPage() {
                           }, 100);
                         }} 
                         disabled={downloadingId === slip.id}
-                        className="flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-medium transition-colors disabled:opacity-50"
+                        title="Download"
+                        className="flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 hover:text-blue-800 rounded-lg transition-colors disabled:opacity-50"
                       >
-                        {downloadingId === slip.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} 
-                        Download
+                        {downloadingId === slip.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />} 
                       </button>
                       {(user?.role === 'ADMIN' || user?.role === 'SUBADMIN') && (
                         <>
@@ -304,11 +304,11 @@ export default function PayslipsPage() {
                               const parsed = JSON.parse(slip.deduction_details);
                               setDeductions(parsed.length ? parsed : [{ name: '', amount: 0 }]);
                             } catch (e) { setDeductions([{ name: '', amount: 0 }]); }
-                          }} className="flex items-center gap-1.5 text-slate-600 hover:text-blue-600 font-medium transition-colors">
-                            <Pencil className="w-4 h-4" /> Edit
+                          }} title="Edit" className="flex items-center justify-center p-2 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors">
+                            <Pencil className="w-5 h-5" />
                           </button>
-                          <button onClick={() => setDeleteId(slip.id)} className="flex items-center gap-1.5 text-red-600 hover:text-red-800 font-medium transition-colors">
-                            <Trash2 className="w-4 h-4" /> Delete
+                          <button onClick={() => setDeleteId(slip.id)} title="Delete" className="flex items-center justify-center p-2 text-red-600 hover:bg-red-50 hover:text-red-800 rounded-lg transition-colors">
+                            <Trash2 className="w-5 h-5" />
                           </button>
                         </>
                       )}
