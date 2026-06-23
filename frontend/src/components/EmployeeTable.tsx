@@ -12,6 +12,7 @@ export default function EmployeeTable() {
   const [user, setUser] = useState<any>(null);
   const [data, setData] = useState<any[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1, total: 0 });
+  const [pageInput, setPageInput] = useState("1");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("id");
   const [sortDir, setSortDir] = useState("ASC");
@@ -62,6 +63,18 @@ export default function EmployeeTable() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    setPageInput(pagination.page.toString());
+  }, [pagination.page]);
+
+  const handlePageSubmit = () => {
+    let val = parseInt(pageInput);
+    if (isNaN(val) || val < 1) val = 1;
+    if (val > pagination.totalPages) val = pagination.totalPages;
+    setPagination(prev => ({ ...prev, page: val }));
+    setPageInput(val.toString());
+  };
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -354,30 +367,29 @@ export default function EmployeeTable() {
               <input
                 type="text"
                 inputMode="numeric"
-                value={pagination.page}
+                value={pageInput}
+                disabled={loading}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/\D/g, '');
-                  if (!raw) return;
-                  let val = parseInt(raw);
-                  if (val < 1) val = 1;
-                  if (val > pagination.totalPages) val = pagination.totalPages;
-                  setPagination(prev => ({ ...prev, page: val }));
+                  setPageInput(raw);
                 }}
-                className="w-14 px-2 py-1 text-center border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 font-medium"
+                onBlur={handlePageSubmit}
+                onKeyDown={(e) => e.key === 'Enter' && handlePageSubmit()}
+                className="w-14 px-2 py-1 text-center border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 font-medium disabled:opacity-50"
               />
               <span className="text-slate-400">of {pagination.totalPages}</span>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
-                disabled={pagination.page === 1}
+                disabled={pagination.page === 1 || loading}
                 className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
-                disabled={pagination.page === pagination.totalPages}
+                disabled={pagination.page === pagination.totalPages || loading}
                 className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50"
               >
                 <ChevronRight className="w-5 h-5" />
