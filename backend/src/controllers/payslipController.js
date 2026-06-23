@@ -23,7 +23,7 @@ const getPayslips = (req, res) => {
 
   // If USER, they can only see their own
   if (user.role === 'USER') {
-    db.all(`SELECT p.*, e.name as employee_name FROM payslips p JOIN employees e ON p.employee_id = e.id WHERE p.employee_id = ? ORDER BY p.year DESC, p.month DESC`, [user.id], (err, rows) => {
+    db.all(`SELECT p.*, e.name as employee_name, e.department as employee_department, e.job_title as employee_job_title, e.date_joined as employee_date_joined FROM payslips p JOIN employees e ON p.employee_id = e.id WHERE p.employee_id = ? ORDER BY p.year DESC, p.month DESC`, [user.id], (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json(rows);
     });
@@ -32,12 +32,12 @@ const getPayslips = (req, res) => {
 
   // Admin/Subadmin can see specific employee or all
   if (employee_id) {
-    db.all(`SELECT p.*, e.name as employee_name FROM payslips p JOIN employees e ON p.employee_id = e.id WHERE p.employee_id = ? ORDER BY p.year DESC, p.month DESC`, [employee_id], (err, rows) => {
+    db.all(`SELECT p.*, e.name as employee_name, e.department as employee_department, e.job_title as employee_job_title, e.date_joined as employee_date_joined FROM payslips p JOIN employees e ON p.employee_id = e.id WHERE p.employee_id = ? ORDER BY p.year DESC, p.month DESC`, [employee_id], (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json(rows);
     });
   } else {
-    db.all(`SELECT p.*, e.name as employee_name FROM payslips p JOIN employees e ON p.employee_id = e.id ORDER BY p.year DESC, p.month DESC`, [], (err, rows) => {
+    db.all(`SELECT p.*, e.name as employee_name, e.department as employee_department, e.job_title as employee_job_title, e.date_joined as employee_date_joined FROM payslips p JOIN employees e ON p.employee_id = e.id ORDER BY p.year DESC, p.month DESC`, [], (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json(rows);
     });

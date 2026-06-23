@@ -2,8 +2,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { getPayslips, createPayslip, getEmployees } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
-import { Download, Plus } from "lucide-react";
+import { Download, Plus, Eye, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import Modal from "@/components/Modal";
+import PayslipDocument from "@/components/PayslipDocument";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function PayslipsPage() {
   const [user, setUser] = useState<any>(null);
@@ -12,6 +16,8 @@ export default function PayslipsPage() {
   
   // For HR to create payslip
   const [showForm, setShowForm] = useState(false);
+  const [viewPayslip, setViewPayslip] = useState<any>(null);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [employees, setEmployees] = useState<any[]>([]);
   const [formData, setFormData] = useState({ employee_id: '', month: 'January', year: 2026, amount: '' });
 
@@ -50,21 +56,54 @@ export default function PayslipsPage() {
     }
   };
 
-  const handleDownload = (payslip: any) => {
-    const text = `ACME Corp Payslip\n\nEmployee: ${payslip.employee_name || user.name}\nMonth: ${payslip.month} ${payslip.year}\nAmount: ${formatCurrency(payslip.amount)}\nPaid At: ${payslip.paid_at}\n\nThis is a computer generated document.`;
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Payslip_${payslip.month}_${payslip.year}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   if (loading) return <div className="p-8">Loading payslips...</div>;
 
   return (
     <div className="p-8 max-w-7xl mx-auto w-full">
+      <Modal isOpen={viewPayslip !== null} onClose={() => setViewPayslip(null)} title="View Payslip">
+        <div id="payslip-modal-content" className="mb-6 max-h-[60vh] overflow-y-auto pr-2">
+          {viewPayslip && <PayslipDocument slip={viewPayslip} />}
+        </div>
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <button onClick={() => setViewPayslip(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Close</button>
+          <button 
+            onClick={async () => {
+              const element = document.getElementById('payslip-document');
+              if (!element) return;
+              
+              setDownloadingId(viewPayslip.id);
+              try {
+                const canvas = await html2canvas(element, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`Payslip_${viewPayslip.month}_${viewPayslip.year}.pdf`);
+                toast.success('Downloaded successfully!');
+              } catch (e) {
+                toast.error('Failed to generate PDF');
+              }
+              setDownloadingId(null);
+            }} 
+            disabled={downloadingId === viewPayslip?.id}
+            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            {downloadingId === viewPayslip?.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+            Download PDF
+          </button>
+        </div>
+      </Modal>
+
+      {/* Hidden container for direct downloads */}
+      <div className="absolute left-[-9999px] top-[-9999px]">
+        {downloadingId && payslips.find(p => p.id === downloadingId) && (
+          <div id="hidden-payslip-doc">
+            <PayslipDocument slip={payslips.find(p => p.id === downloadingId)} />
+          </div>
+        )}
+      </div>
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Payslips</h1>
@@ -123,9 +162,42 @@ export default function PayslipsPage() {
                   <td className="p-4 font-medium text-slate-900">{formatCurrency(slip.amount)}</td>
                   <td className="p-4 text-slate-500">{slip.paid_at}</td>
                   <td className="p-4">
-                    <button onClick={() => handleDownload(slip)} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
-                      <Download className="w-4 h-4" /> Download
-                    </button>
+                    <div className="flex items-center gap-4">
+                      <button onClick={() => setViewPayslip(slip)} className="flex items-center gap-1.5 text-slate-600 hover:text-blue-600 font-medium transition-colors">
+                        <Eye className="w-4 h-4" /> View
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          setDownloadingId(slip.id);
+                          // Give React a tick to render the hidden document
+                          setTimeout(async () => {
+                            const element = document.getElementById('payslip-document');
+                            if (!element) {
+                              setDownloadingId(null);
+                              return toast.error('Failed to find document');
+                            }
+                            try {
+                              const canvas = await html2canvas(element, { scale: 2 });
+                              const imgData = canvas.toDataURL('image/png');
+                              const pdf = new jsPDF('p', 'mm', 'a4');
+                              const pdfWidth = pdf.internal.pageSize.getWidth();
+                              const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                              pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                              pdf.save(`Payslip_${slip.month}_${slip.year}.pdf`);
+                              toast.success('Downloaded successfully!');
+                            } catch (e) {
+                              toast.error('Failed to generate PDF');
+                            }
+                            setDownloadingId(null);
+                          }, 100);
+                        }} 
+                        disabled={downloadingId === slip.id}
+                        className="flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-medium transition-colors disabled:opacity-50"
+                      >
+                        {downloadingId === slip.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} 
+                        Download
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
