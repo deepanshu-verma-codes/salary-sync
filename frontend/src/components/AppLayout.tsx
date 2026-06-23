@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, FileText, LogOut, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 
@@ -12,10 +12,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+    const isPublic = pathname === '/' || pathname === '/login';
+    
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else if (!isPublic) {
+      router.push('/login');
     }
-  }, [pathname]);
+  }, [pathname, router]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -35,7 +39,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return <div className="p-8">Loading...</div>;
+  if (!user) return (
+    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] fixed inset-0 z-50">
+      <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
+        <div className="relative flex items-center justify-center w-24 h-24">
+          <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
+          <div className="relative bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-2xl p-5 flex items-center justify-center border border-slate-100">
+            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <h2 className="text-2xl font-black text-slate-800 tracking-tight">SALARY SYNC</h2>
+          <p className="text-sm font-semibold text-slate-400 animate-pulse tracking-wide">Preparing your workspace...</p>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
