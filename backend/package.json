@@ -6,7 +6,8 @@
     "start": "dotenv -e ../.env -- node src/server.js",
     "dev": "dotenv -e ../.env -- nodemon src/server.js",
     "seed": "dotenv -e ../.env -- node src/scripts/seed.js",
-    "test": "jest"
+    "test": "jest",
+    "render-build": "npm install --build-from-source=sqlite3"
   },
   "keywords": [],
   "author": "",
