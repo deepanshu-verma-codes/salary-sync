@@ -7,6 +7,7 @@ import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Trash2, ShieldAlert, Sh
 import toast from "react-hot-toast";
 import Modal from "./Modal";
 import LabelTooltip from "./LabelTooltip";
+import DatePicker from "./DatePicker";
 
 export default function EmployeeTable() {
   const [user, setUser] = useState<any>(null);
@@ -291,7 +292,11 @@ export default function EmployeeTable() {
             </div>
             <div>
               <LabelTooltip label="Date Joined" tooltip="Official date of joining the company." />
-              <input type="date" required max={new Date().toISOString().split('T')[0]} title="Date joined cannot be in the future" value={formData.date_joined} onChange={e => setFormData({...formData, date_joined: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <DatePicker 
+                value={formData.date_joined} 
+                onChange={(date) => setFormData({...formData, date_joined: date})} 
+                max={new Date().toISOString().split('T')[0]} 
+              />
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">

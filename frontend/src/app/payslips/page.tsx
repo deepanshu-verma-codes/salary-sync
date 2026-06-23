@@ -30,6 +30,8 @@ export default function PayslipsPage() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [formData, setFormData] = useState({ employee_id: '', month: 'January', year: currentYear, amount: '' });
   const [deductions, setDeductions] = useState([{ name: 'Tax / PF', amount: 0 }]);
+  const [empSearchQuery, setEmpSearchQuery] = useState('');
+  const [showEmpDropdown, setShowEmpDropdown] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -126,29 +128,38 @@ export default function PayslipsPage() {
           {viewPayslip && <PayslipDocument slip={viewPayslip} />}
         </div>
         <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-          <button onClick={() => setViewPayslip(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Close</button>
+          <button onClick={() => setViewPayslip(null)} disabled={downloadingId === viewPayslip?.id} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-50">Close</button>
           <button 
+            disabled={downloadingId === viewPayslip?.id}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-colors disabled:opacity-50"
             onClick={async () => {
               const element = document.querySelector('#payslip-modal-content #payslip-document') as HTMLElement;
               if (!element) return toast.error('Failed to find document');
               
               setDownloadingId(viewPayslip.id);
               try {
-                const canvas = await html2canvas(element, { scale: 2 });
-                const imgData = canvas.toDataURL('image/png');
+                const canvas = await html2canvas(element, { 
+                  scale: 2, 
+                  useCORS: true, 
+                  logging: false,
+                  width: element.offsetWidth,
+                  height: element.offsetHeight,
+                  windowWidth: element.scrollWidth,
+                  windowHeight: element.scrollHeight
+                });
+                const imgData = canvas.toDataURL('image/png', 1.0);
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 pdf.save(`Payslip_${viewPayslip.month}_${viewPayslip.year}.pdf`);
                 toast.success('Downloaded successfully!');
-              } catch (e) {
-                toast.error('Failed to generate PDF');
+              } catch (e: any) {
+                console.error('PDF Error:', e);
+                toast.error('Failed to generate PDF: ' + (e.message || 'Unknown error'));
               }
               setDownloadingId(null);
             }} 
-            disabled={downloadingId === viewPayslip?.id}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
             {downloadingId === viewPayslip?.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
             Download PDF
@@ -166,8 +177,8 @@ export default function PayslipsPage() {
         </div>
       </Modal>
 
-      {/* Hidden container for direct downloads - using absolute positioning to keep it in DOM but visually hidden without breaking html2canvas */}
-      <div className="absolute opacity-0 pointer-events-none" style={{ left: 0, top: 0, zIndex: -100, width: '1000px' }}>
+      {/* Hidden container for direct downloads - keep it in DOM but hidden via clipping */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '800px', height: '1px', overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
         {downloadingId && payslips.find(p => p.id === downloadingId) && (
           <div id="hidden-payslip-doc">
             <PayslipDocument slip={payslips.find(p => p.id === downloadingId)} />
@@ -202,6 +213,8 @@ export default function PayslipsPage() {
               <button onClick={() => {
                 setFormData({ employee_id: '', month: 'January', year: currentYear, amount: '' });
                 setDeductions([{ name: 'Tax / PF', amount: 0 }]);
+                setEmpSearchQuery('');
+                setShowEmpDropdown(false);
                 setShowForm(true);
               }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                 <Plus className="w-5 h-5" /> Issue Payslip
@@ -214,16 +227,57 @@ export default function PayslipsPage() {
       <Modal isOpen={showForm || editForm !== null} onClose={() => { setShowForm(false); setEditForm(null); }} title={editForm ? "Edit Payslip" : "Issue New Payslip"} maxWidth="max-w-2xl">
         <form onSubmit={editForm ? handleUpdate : handleCreate} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+            <div className="relative">
               <LabelTooltip label="Employee" tooltip="Select the employee receiving the payslip." />
-              <select required disabled={editForm !== null} value={formData.employee_id} onChange={(e) => {
-                const empId = e.target.value;
-                const emp = employees.find(emp => emp.id.toString() === empId);
-                setFormData({...formData, employee_id: empId, amount: emp ? Math.round(emp.salary / 12).toString() : ''});
-              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500">
-                <option value="">Select Employee</option>
-                {employees.filter(e => e.role !== 'ADMIN' && (user?.role === 'ADMIN' || e.id !== user?.id)).map(e => <option key={e.id} value={e.id}>{e.name} ({e.email})</option>)}
-              </select>
+              {editForm ? (
+                <select disabled value={formData.employee_id} className="w-full px-4 py-2 rounded-xl border border-slate-300 bg-slate-100 text-slate-500 focus:outline-none">
+                  <option value={formData.employee_id}>{employees.find(e => e.id.toString() === formData.employee_id)?.name || 'Employee'}</option>
+                </select>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    required={!formData.employee_id}
+                    placeholder="Search employee..."
+                    value={empSearchQuery}
+                    onChange={(e) => {
+                      setEmpSearchQuery(e.target.value);
+                      setShowEmpDropdown(true);
+                      if (formData.employee_id) setFormData({...formData, employee_id: '', amount: ''});
+                    }}
+                    onFocus={() => setShowEmpDropdown(true)}
+                    className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  {showEmpDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowEmpDropdown(false)}></div>
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                        {employees
+                          .filter(e => e.role !== 'ADMIN' && (user?.role === 'ADMIN' || e.id !== user?.id))
+                          .filter(e => e.name.toLowerCase().includes(empSearchQuery.toLowerCase()) || e.email.toLowerCase().includes(empSearchQuery.toLowerCase()))
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map(e => (
+                            <div 
+                              key={e.id} 
+                              className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm border-b border-slate-50 last:border-0"
+                              onClick={() => {
+                                setFormData({...formData, employee_id: e.id.toString(), amount: Math.round(e.salary / 12).toString()});
+                                setEmpSearchQuery(`${e.name} (${e.email})`);
+                                setShowEmpDropdown(false);
+                              }}
+                            >
+                              <div className="font-semibold text-slate-800">{e.name}</div>
+                              <div className="text-slate-500 text-xs">{e.email}</div>
+                            </div>
+                        ))}
+                        {employees.filter(e => e.role !== 'ADMIN' && (user?.role === 'ADMIN' || e.id !== user?.id)).filter(e => e.name.toLowerCase().includes(empSearchQuery.toLowerCase()) || e.email.toLowerCase().includes(empSearchQuery.toLowerCase())).length === 0 && (
+                          <div className="px-4 py-3 text-slate-500 text-sm text-center">No employees found</div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <LabelTooltip label="Month" tooltip="The month this salary covers." />
@@ -334,7 +388,7 @@ export default function PayslipsPage() {
                                     return toast.error('Failed to find document');
                                   }
                                   try {
-                                    const canvas = await html2canvas(element, { scale: 2 });
+                                    const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
                                     const imgData = canvas.toDataURL('image/png');
                                     const pdf = new jsPDF('p', 'mm', 'a4');
                                     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -342,11 +396,12 @@ export default function PayslipsPage() {
                                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                                     pdf.save(`Payslip_${slip.month}_${slip.year}.pdf`);
                                     toast.success('Downloaded successfully!');
-                                  } catch (e) {
-                                    toast.error('Failed to generate PDF');
+                                  } catch (e: any) {
+                                    console.error('PDF Generation Error:', e);
+                                    toast.error('Failed to generate PDF. Please try again.');
                                   }
                                   setDownloadingId(null);
-                                }, 100);
+                                }, 500);
                               }} 
                               disabled={downloadingId === slip.id}
                               title="Download"
@@ -399,19 +454,28 @@ export default function PayslipsPage() {
                                 return toast.error('Failed to find document');
                               }
                               try {
-                                const canvas = await html2canvas(element, { scale: 2 });
-                                const imgData = canvas.toDataURL('image/png');
+                                const canvas = await html2canvas(element, { 
+                                  scale: 2, 
+                                  useCORS: true, 
+                                  logging: false,
+                                  width: element.offsetWidth,
+                                  height: element.offsetHeight,
+                                  windowWidth: element.scrollWidth,
+                                  windowHeight: element.scrollHeight
+                                });
+                                const imgData = canvas.toDataURL('image/png', 1.0);
                                 const pdf = new jsPDF('p', 'mm', 'a4');
                                 const pdfWidth = pdf.internal.pageSize.getWidth();
                                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                                 pdf.save(`Payslip_${slip.month}_${slip.year}.pdf`);
                                 toast.success('Downloaded successfully!');
-                              } catch (e) {
-                                toast.error('Failed to generate PDF');
+                              } catch (e: any) {
+                                console.error('PDF Generation Error:', e);
+                                toast.error('Failed to generate PDF: ' + (e.message || 'Unknown error'));
                               }
                               setDownloadingId(null);
-                            }, 100);
+                            }, 500);
                           }} 
                           disabled={downloadingId === slip.id}
                           title="Download"
