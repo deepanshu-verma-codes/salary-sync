@@ -58,6 +58,9 @@ export default function PayslipsPage() {
     }
   };
 
+  const totalDeductions = deductions.reduce((sum, d) => sum + (d.amount || 0), 0);
+  const netPay = (parseInt(formData.amount) || 0) - totalDeductions;
+
   if (loading) return <div className="p-8">Loading payslips...</div>;
 
   return (
@@ -143,8 +146,12 @@ export default function PayslipsPage() {
               <input type="number" required placeholder="Year" value={formData.year} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Basic Salary (₹)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Gross Salary (₹)</label>
               <input type="number" required placeholder="Amount" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Net Pay (Auto-Calculated) (₹)</label>
+              <input type="text" disabled value={netPay} className="w-full px-4 py-2 rounded-xl border border-green-200 bg-green-50 text-green-700 font-bold focus:outline-none" />
             </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-2">Extra Deductions</label>
