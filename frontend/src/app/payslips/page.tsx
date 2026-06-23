@@ -60,7 +60,7 @@ export default function PayslipsPage() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto w-full">
-      <Modal isOpen={viewPayslip !== null} onClose={() => setViewPayslip(null)} title="View Payslip">
+      <Modal isOpen={viewPayslip !== null} onClose={() => setViewPayslip(null)} title="View Payslip" maxWidth="max-w-4xl">
         <div id="payslip-modal-content" className="mb-6 max-h-[60vh] overflow-y-auto pr-2">
           {viewPayslip && <PayslipDocument slip={viewPayslip} />}
         </div>

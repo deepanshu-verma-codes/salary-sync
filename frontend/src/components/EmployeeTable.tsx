@@ -148,7 +148,7 @@ export default function EmployeeTable() {
         )}
       </div>
 
-      <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Add New User">
+      <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Add New User" maxWidth="max-w-2xl">
         <form onSubmit={handleAdd} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
