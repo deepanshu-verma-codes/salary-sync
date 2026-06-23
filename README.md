@@ -25,18 +25,21 @@ This application provides an intuitive, high-performance web interface to manage
 
 ## Getting Started
 
-### 1. Backend Setup
+### 1. Environment Variables
+This project uses a single unified `.env` file at the root of the project to configure both the frontend and backend.
+
+Copy the example file to `.env`:
+```bash
+cp .env.example .env
+```
+*(Update `.env` with your secure JWT secrets if running in production)*
+
+### 2. Backend Setup
 Navigate to the backend directory and install dependencies:
 ```bash
 cd backend
 npm install
 ```
-
-Configure environment variables by copying the example file:
-```bash
-cp .env.example .env
-```
-*(Update `.env` with your secure JWT secrets if running in production)*
 
 Seed the database with 10,000 employee records (Default Admin credentials will be generated here):
 ```bash
@@ -49,16 +52,11 @@ Start the backend server (runs on port 3001):
 npm run dev
 ```
 
-### 2. Frontend Setup
+### 3. Frontend Setup
 In a new terminal window, navigate to the frontend directory and install dependencies:
 ```bash
 cd frontend
 npm install
-```
-
-Configure environment variables:
-```bash
-cp .env.example .env
 ```
 
 Start the frontend development server:
@@ -66,7 +64,7 @@ Start the frontend development server:
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser. Both frontend and backend automatically load from the root `.env` via `dotenv-cli`.
 
 ## Testing
 To run backend tests:
