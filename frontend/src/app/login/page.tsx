@@ -46,9 +46,8 @@ export default function LoginPage() {
           </div>
         </div>
         <h2 className="mt-2 text-center text-3xl font-black tracking-tight text-slate-900">Welcome Back</h2>
-        <p className="mt-3 text-center text-sm font-medium text-slate-500 bg-white/50 backdrop-blur-md py-2 px-4 rounded-full inline-block mx-auto max-w-fit shadow-sm border border-slate-200/50">
-          Admin: iAmAdmin@yopmail.com / Admin@123456 <br/>
-          HR: hr@yopmail.com / Abc@123456
+        <p className="mt-3 text-center text-sm font-medium text-slate-500">
+          Sign in to manage your organization's payroll and employee data.
         </p>
       </div>
 
