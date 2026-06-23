@@ -28,6 +28,7 @@ const initDb = () => {
           department TEXT NOT NULL,
           country TEXT NOT NULL,
           salary REAL NOT NULL,
+          experience INTEGER DEFAULT 0,
           date_joined TEXT NOT NULL
         )
       `, (err) => {

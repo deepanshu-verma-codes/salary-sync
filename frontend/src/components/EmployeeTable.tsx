@@ -18,7 +18,7 @@ export default function EmployeeTable() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [showAdd, setShowAdd] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER', department: 'Engineering', country: 'USA', salary: 100000 });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER', job_title: '', experience: 0, department: 'Engineering', country: 'USA', salary: 100000 });
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [roleUpdate, setRoleUpdate] = useState<{ id: number, role: 'SUBADMIN' | 'USER' } | null>(null);
@@ -147,23 +147,47 @@ export default function EmployeeTable() {
         )}
       </div>
 
-      {showAdd && (
-        <div className="glass-card rounded-2xl p-6 border border-blue-100 animate-fade-in">
-          <form onSubmit={handleAdd} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <input type="text" required placeholder="Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="px-4 py-2 rounded-xl border border-slate-300" />
-            <input type="email" required placeholder="Email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="px-4 py-2 rounded-xl border border-slate-300" />
-            <input type="password" required placeholder="Password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="px-4 py-2 rounded-xl border border-slate-300" />
-            <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="px-4 py-2 rounded-xl border border-slate-300">
-              <option value="USER">User</option>
-              {user?.role === 'ADMIN' && <option value="SUBADMIN">Subadmin</option>}
-            </select>
-            <input type="number" required placeholder="Salary" value={formData.salary} onChange={e => setFormData({...formData, salary: parseInt(e.target.value)})} className="px-4 py-2 rounded-xl border border-slate-300" />
-            <div className="flex justify-end items-end">
-              <button type="submit" className="w-full py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800">Save User</button>
+      <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Add New User">
+        <form onSubmit={handleAdd} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+              <input type="text" required placeholder="John Doe" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
-          </form>
-        </div>
-      )}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <input type="email" required placeholder="john@example.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <input type="password" required placeholder="Password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+              <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="USER">User</option>
+                {user?.role === 'ADMIN' && <option value="SUBADMIN">Subadmin</option>}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Designation</label>
+              <input type="text" required placeholder="Software Engineer" value={formData.job_title} onChange={e => setFormData({...formData, job_title: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Experience (Years)</label>
+              <input type="number" required placeholder="5" value={formData.experience} onChange={e => setFormData({...formData, experience: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Salary</label>
+              <input type="number" required placeholder="100000" value={formData.salary} onChange={e => setFormData({...formData, salary: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+          </div>
+          <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
+            <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
+            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">Save User</button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Table */}
       <div className="glass-card rounded-2xl overflow-hidden shadow-sm animate-fade-in">

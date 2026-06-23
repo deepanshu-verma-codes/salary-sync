@@ -27,18 +27,18 @@ async function seed() {
     
     // Insert Admin
     await new Promise((resolve, reject) => {
-      db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, date_joined) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-        ['Admin User', 'iAmAdmin@yopmail.com', adminHash, 'ADMIN', 'CEO', 'Management', 'USA', 500000, '2020-01-01'],
+      db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, experience, date_joined) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+        ['Admin User', 'iAmAdmin@yopmail.com', adminHash, 'ADMIN', 'CEO', 'Management', 'USA', 500000, 10, '2020-01-01'],
         err => err ? reject(err) : resolve()
       );
     });
     
     // Insert HR / Subadmin
     await new Promise((resolve, reject) => {
-      db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, date_joined) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-        ['HR Manager', 'hr@yopmail.com', hrHash, 'SUBADMIN', 'HR Manager', 'HR', 'USA', 150000, '2021-01-01'],
+      db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, experience, date_joined) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+        ['HR Manager', 'hr@yopmail.com', hrHash, 'SUBADMIN', 'HR Manager', 'HR', 'USA', 150000, 5, '2021-01-01'],
         err => err ? reject(err) : resolve()
       );
     });

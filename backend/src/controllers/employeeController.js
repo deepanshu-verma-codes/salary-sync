@@ -107,14 +107,14 @@ const getEmployeeById = (req, res) => {
 };
 
 const addUser = async (req, res) => {
-  const { name, email, password, role, job_title, department, country, salary, date_joined } = req.body;
+  const { name, email, password, role, job_title, department, country, salary, experience, date_joined } = req.body;
   
   try {
     const hash = await bcrypt.hash(password || 'User@123', 10);
     const assignedRole = role || 'USER';
 
-    db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, date_joined) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, email, hash, assignedRole, job_title || '', department || '', country || '', salary || 0, date_joined || new Date().toISOString().split('T')[0]],
+    db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, experience, date_joined) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, email, hash, assignedRole, job_title || '', department || '', country || '', salary || 0, experience || 0, date_joined || new Date().toISOString().split('T')[0]],
       function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ id: this.lastID, name, email, role: assignedRole });
