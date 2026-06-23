@@ -19,7 +19,8 @@ export default function PayslipsPage() {
   const [viewPayslip, setViewPayslip] = useState<any>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [employees, setEmployees] = useState<any[]>([]);
-  const [formData, setFormData] = useState({ employee_id: '', month: 'January', year: 2026, amount: '', deductions: 0 });
+  const [formData, setFormData] = useState({ employee_id: '', month: 'January', year: 2026, amount: '' });
+  const [deductions, setDeductions] = useState([{ name: 'Tax / PF', amount: 0 }]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -46,7 +47,8 @@ export default function PayslipsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createPayslip(formData);
+      const payload = { ...formData, deduction_details: deductions.filter(d => d.name && d.amount > 0) };
+      await createPayslip(payload);
       setShowForm(false);
       fetchData();
       toast.success('Payslip issued successfully!');
@@ -145,8 +147,30 @@ export default function PayslipsPage() {
               <input type="number" required placeholder="Amount" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Deductions (Tax/PF)</label>
-              <input type="number" required placeholder="Deductions" value={formData.deductions} onChange={e => setFormData({...formData, deductions: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <label className="block text-sm font-medium text-slate-700 mb-2">Extra Deductions</label>
+              {deductions.map((d, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <input type="text" placeholder="Reason (e.g. Tax)" value={d.name} onChange={e => {
+                    const newDeds = [...deductions];
+                    newDeds[index].name = e.target.value;
+                    setDeductions(newDeds);
+                  }} className="w-1/2 px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                  <input type="number" placeholder="Amount (₹)" value={d.amount || ''} onChange={e => {
+                    const newDeds = [...deductions];
+                    newDeds[index].amount = parseInt(e.target.value) || 0;
+                    setDeductions(newDeds);
+                  }} className="w-1/2 px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                  {index === deductions.length - 1 ? (
+                    <button type="button" onClick={() => setDeductions([...deductions, { name: '', amount: 0 }])} className="p-2 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-200 transition-colors">
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => setDeductions(deductions.filter((_, i) => i !== index))} className="p-2 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition-colors">
+                      <span className="font-bold text-lg leading-none">&times;</span>
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">

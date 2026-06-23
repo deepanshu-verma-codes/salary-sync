@@ -1,6 +1,17 @@
 import { formatCurrency } from "@/lib/utils";
 
 export default function PayslipDocument({ slip }: { slip: any }) {
+  let parsedDeductions = [];
+  try {
+    parsedDeductions = typeof slip.deduction_details === 'string' ? JSON.parse(slip.deduction_details) : (slip.deduction_details || []);
+  } catch (e) {
+    parsedDeductions = [];
+  }
+  if (parsedDeductions.length === 0 && slip.deductions > 0) {
+    // Fallback for older payslips
+    parsedDeductions = [{ name: 'Tax / PF / Other', amount: slip.deductions }];
+  }
+
   if (!slip) return null;
 
   return (
@@ -47,10 +58,22 @@ export default function PayslipDocument({ slip }: { slip: any }) {
         </thead>
         <tbody className="border-b border-slate-200">
           <tr>
-            <td className="py-4 px-4 font-medium text-slate-800">Basic Salary</td>
-            <td className="py-4 px-4 text-right font-medium text-slate-900">{formatCurrency(slip.amount)}</td>
-            <td className="py-4 px-4 text-slate-500 border-l border-slate-200">Tax / PF / Other</td>
-            <td className="py-4 px-4 text-right text-slate-500">{formatCurrency(slip.deductions || 0)}</td>
+            <td className="py-4 px-4 font-medium text-slate-800 align-top">
+              <div className="mb-2">Basic Salary</div>
+            </td>
+            <td className="py-4 px-4 text-right font-medium text-slate-900 align-top">
+              <div className="mb-2">{formatCurrency(slip.amount)}</div>
+            </td>
+            <td className="py-4 px-4 text-slate-500 border-l border-slate-200 align-top">
+              {parsedDeductions.length > 0 ? parsedDeductions.map((d: any, idx: number) => (
+                <div key={idx} className="mb-2">{d.name}</div>
+              )) : <div className="mb-2">None</div>}
+            </td>
+            <td className="py-4 px-4 text-right text-slate-500 align-top">
+              {parsedDeductions.length > 0 ? parsedDeductions.map((d: any, idx: number) => (
+                <div key={idx} className="mb-2">{formatCurrency(d.amount)}</div>
+              )) : <div className="mb-2">{formatCurrency(0)}</div>}
+            </td>
           </tr>
         </tbody>
       </table>

@@ -1,18 +1,27 @@
 const { db } = require('../db/database');
 
 const createPayslip = (req, res) => {
-  const { employee_id, month, year, amount, deductions } = req.body;
+  const { employee_id, month, year, amount, deduction_details } = req.body;
   if (!employee_id || !month || !year || !amount) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
+  // deduction_details should be an array: [{ name: 'Tax', amount: 500 }, ...]
+  const detailsArray = Array.isArray(deduction_details) ? deduction_details : [];
+  const totalDeductions = detailsArray.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const detailsJson = JSON.stringify(detailsArray);
+
+  if (totalDeductions >= amount) {
+    return res.status(400).json({ error: 'Total deductions cannot be greater than or equal to the Basic Salary' });
+  }
+
   const paid_at = new Date().toISOString().split('T')[0];
 
-  db.run(`INSERT INTO payslips (employee_id, month, year, amount, deductions, paid_at) VALUES (?, ?, ?, ?, ?, ?)`,
-    [employee_id, month, year, amount, deductions || 0, paid_at],
+  db.run(`INSERT INTO payslips (employee_id, month, year, amount, deductions, deduction_details, paid_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [employee_id, month, year, amount, totalDeductions, detailsJson, paid_at],
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, employee_id, month, year, amount, deductions: deductions || 0, paid_at });
+      res.json({ id: this.lastID, employee_id, month, year, amount, deductions: totalDeductions, deduction_details: detailsJson, paid_at });
     }
   );
 };
