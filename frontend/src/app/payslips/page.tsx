@@ -10,6 +10,9 @@ import PayslipDocument from "@/components/PayslipDocument";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+const currentYear = new Date().getFullYear();
+const pastYears = Array.from({ length: 20 }, (_, i) => currentYear - i);
+
 export default function PayslipsPage() {
   const [user, setUser] = useState<any>(null);
   const [payslips, setPayslips] = useState<any[]>([]);
@@ -144,10 +147,9 @@ export default function PayslipsPage() {
             </div>
             <div>
               <LabelTooltip label="Year" tooltip="The year for this payslip." />
-              <input type="text" inputMode="numeric" required maxLength={4} placeholder="Year" value={formData.year || ''} onChange={e => {
-                const val = e.target.value.replace(/\D/g, '');
-                setFormData({...formData, year: val === '' ? 0 : parseInt(val)});
-              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <select required value={formData.year} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                {pastYears.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
             </div>
             <div>
               <LabelTooltip label="Gross Salary (₹)" tooltip="Monthly base pay. Auto-calculated from yearly salary." />
