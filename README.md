@@ -41,11 +41,14 @@ cd backend
 npm install
 ```
 
-Seed the database with 10,000 employee records (Default Admin credentials will be generated here):
+Seed the database with 10,000 employee records:
 ```bash
 npm run seed
 ```
-*(Default Admin: `iAmAdmin@yopmail.com` / `Admin@123456`)*
+*(Default Credentials:)*
+- **Admin:** `iAmAdmin@yopmail.com` / `Admin@123456`
+- **HR (Subadmin):** `hr@yopmail.com` / `HR@123456`
+- **Regular Employees:** *Any generated email* / `ABC@123456`
 
 Start the backend server (runs on port 3001):
 ```bash

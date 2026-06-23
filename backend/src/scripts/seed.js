@@ -22,8 +22,8 @@ async function seed() {
     
     console.log('Generating password hashes...');
     const adminHash = await bcrypt.hash('Admin@123456', 10);
-    const hrHash = await bcrypt.hash('Abc@123456', 10);
-    const userHash = await bcrypt.hash('User@123', 10); // default for randoms
+    const hrHash = await bcrypt.hash('HR@123456', 10);
+    const userHash = await bcrypt.hash('ABC@123456', 10); // default for randoms
     
     // Insert Admin
     await new Promise((resolve, reject) => {
@@ -44,8 +44,38 @@ async function seed() {
     });
 
     console.log('Database seeded successfully with Admin and HR users!');
-    
-    console.log('Database seeded successfully!');
+
+    await new Promise((resolve, reject) => {
+      console.log('Generating remaining 9998 employees in bulk...');
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        const stmt = db.prepare(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, experience, date_joined) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+        
+        for (let i = 0; i < 9998; i++) {
+          const dept = departments[Math.floor(Math.random() * departments.length)];
+          const country = countries[Math.floor(Math.random() * countries.length)];
+          stmt.run(
+            faker.person.fullName(),
+            faker.internet.email().toLowerCase() + i, // prevent unique constraint conflicts
+            userHash,
+            'USER',
+            faker.person.jobTitle(),
+            dept,
+            country,
+            Math.floor(Math.random() * 100000) + 40000,
+            Math.floor(Math.random() * 20) + 1,
+            faker.date.past({ years: 10 }).toISOString().split('T')[0]
+          );
+        }
+        stmt.finalize();
+        db.run('COMMIT', (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    });
+
+    console.log('Database seeded successfully with 10000 total employees!');
     db.close();
   } catch (error) {
     console.error('Seeding failed:', error);
