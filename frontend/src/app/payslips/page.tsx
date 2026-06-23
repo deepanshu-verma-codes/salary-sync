@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { getPayslips, createPayslip, getEmployees } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
 import { Download, Plus } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function PayslipsPage() {
   const [user, setUser] = useState<any>(null);
@@ -42,9 +43,10 @@ export default function PayslipsPage() {
       await createPayslip(formData);
       setShowForm(false);
       fetchData();
-    } catch (err) {
+      toast.success('Payslip issued successfully!');
+    } catch (err: any) {
       console.error(err);
-      alert('Error creating payslip');
+      toast.error(err.response?.data?.error || 'Error creating payslip');
     }
   };
 

@@ -3,25 +3,25 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
 import { Lock, Mail } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res = await login({ email, password });
       localStorage.setItem("token", res.token);
       localStorage.setItem("user", JSON.stringify(res.user));
+      toast.success("Login successful!");
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Login failed");
+      toast.error(err.response?.data?.error || "Login failed");
     }
     setLoading(false);
   };
@@ -39,8 +39,6 @@ export default function LoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-slate-100">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg">{error}</div>}
-            
             <div>
               <label className="block text-sm font-medium text-slate-700">Email address</label>
               <div className="mt-1 relative">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Users, FileText, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -70,6 +71,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col h-full overflow-auto relative">
+        <Toaster position="top-right" />
         {children}
       </main>
     </div>

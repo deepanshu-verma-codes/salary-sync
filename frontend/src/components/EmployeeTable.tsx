@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { getEmployees, deleteUser, makeSubadmin, addUser } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
 import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Trash2, ShieldAlert, UserPlus } from "lucide-react";
+import toast from "react-hot-toast";
+import Modal from "./Modal";
 
 export default function EmployeeTable() {
   const [user, setUser] = useState<any>(null);
@@ -17,6 +19,9 @@ export default function EmployeeTable() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER', department: 'Engineering', country: 'USA', salary: 100000 });
+
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [subadminId, setSubadminId] = useState<number | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -63,29 +68,62 @@ export default function EmployeeTable() {
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      await deleteUser(id);
-      fetchData();
+  const executeDelete = async () => {
+    if (deleteId) {
+      try {
+        await deleteUser(deleteId);
+        toast.success('User deleted successfully');
+        fetchData();
+      } catch(err: any) {
+        toast.error(err.response?.data?.error || 'Failed to delete user');
+      }
+      setDeleteId(null);
     }
   };
 
-  const handleMakeSubadmin = async (id: number) => {
-    if (confirm("Make this user a Subadmin?")) {
-      await makeSubadmin(id);
-      fetchData();
+  const executeMakeSubadmin = async () => {
+    if (subadminId) {
+      try {
+        await makeSubadmin(subadminId);
+        toast.success('Role updated to Subadmin');
+        fetchData();
+      } catch(err: any) {
+        toast.error(err.response?.data?.error || 'Failed to update role');
+      }
+      setSubadminId(null);
     }
   };
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addUser(formData);
-    setShowAdd(false);
-    fetchData();
+    try {
+      await addUser(formData);
+      setShowAdd(false);
+      toast.success('User added successfully');
+      fetchData();
+    } catch(err: any) {
+      toast.error(err.response?.data?.error || 'Failed to add user');
+    }
   };
 
   return (
     <div className="space-y-6">
+      <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete User">
+        <p className="text-slate-600 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
+        <div className="flex justify-end gap-3">
+          <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
+          <button onClick={executeDelete} className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-xl transition-colors">Delete</button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={subadminId !== null} onClose={() => setSubadminId(null)} title="Make Subadmin">
+        <p className="text-slate-600 mb-6">Are you sure you want to grant Subadmin privileges to this user?</p>
+        <div className="flex justify-end gap-3">
+          <button onClick={() => setSubadminId(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
+          <button onClick={executeMakeSubadmin} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-colors">Confirm</button>
+        </div>
+      </Modal>
+
       {/* Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="relative w-full sm:w-96">
@@ -167,10 +205,10 @@ export default function EmployeeTable() {
                     <td className="p-4 flex items-center gap-2">
                       {user?.role === 'ADMIN' && emp.role !== 'ADMIN' && (
                         <>
-                          <button onClick={() => handleMakeSubadmin(emp.id)} title="Make Subadmin" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                          <button onClick={() => setSubadminId(emp.id)} title="Make Subadmin" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
                             <ShieldAlert className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(emp.id)} title="Delete" className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                          <button onClick={() => setDeleteId(emp.id)} title="Delete" className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </>
