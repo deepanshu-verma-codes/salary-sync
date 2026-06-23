@@ -43,37 +43,7 @@ async function seed() {
       );
     });
 
-    console.log(`Starting to seed ${SEED_COUNT} random employees...`);
-    
-    for (let i = 0; i < SEED_COUNT; i += BATCH_SIZE) {
-      const batchSize = Math.min(BATCH_SIZE, SEED_COUNT - i);
-      const placeholders = [];
-      const values = [];
-      
-      for (let j = 0; j < batchSize; j++) {
-        placeholders.push('(?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        values.push(
-          faker.person.fullName(),
-          faker.internet.email() + Math.random(), // ensure unique
-          userHash,
-          'USER',
-          faker.person.jobTitle(),
-          faker.helpers.arrayElement(departments),
-          faker.helpers.arrayElement(countries),
-          faker.number.int({ min: 40000, max: 250000 }),
-          faker.date.past({ years: 5 }).toISOString().split('T')[0]
-        );
-      }
-      
-      await new Promise((resolve, reject) => {
-        db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, date_joined) VALUES ${placeholders.join(',')}`, values, (err) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
-      
-      console.log(`Seeded ${i + batchSize} / ${SEED_COUNT}`);
-    }
+    console.log('Database seeded successfully with Admin and HR users!');
     
     console.log('Database seeded successfully!');
     db.close();
