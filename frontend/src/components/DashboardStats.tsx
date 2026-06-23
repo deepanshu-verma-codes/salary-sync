@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { getStats, getDistributionByDepartment } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
 import { Users, DollarSign, TrendingUp } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export default function DashboardStats() {
   const [stats, setStats] = useState<any>(null);
@@ -64,25 +63,23 @@ export default function DashboardStats() {
       {/* Chart */}
       <div className="glass-card rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
         <h3 className="text-lg font-semibold text-slate-900 mb-6">Average Salary by Department</h3>
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={dist} margin={{ top: 10, right: 10, left: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-              <XAxis dataKey="department" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dy={10} />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: '#64748b' }} 
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-              />
-              <Tooltip 
-                cursor={{ fill: '#f1f5f9' }}
-                contentStyle={{ borderRadius: '0.75rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                formatter={(value: number) => formatCurrency(value)}
-              />
-              <Bar dataKey="averageSalary" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="space-y-5">
+          {[...dist].sort((a, b) => b.averageSalary - a.averageSalary).map((d, i) => {
+            const maxSalary = Math.max(...dist.map(x => x.averageSalary));
+            const percentage = (d.averageSalary / maxSalary) * 100;
+            return (
+              <div key={d.department} className="relative flex items-center gap-4 group">
+                <div className="w-32 text-sm font-medium text-slate-700 truncate">{d.department}</div>
+                <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden relative">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-1000 ease-out" 
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                <div className="w-32 text-right text-sm font-bold text-slate-900">{formatCurrency(d.averageSalary)}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
