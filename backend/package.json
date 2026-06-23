@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "dotenv -e ../.env -- node src/server.js",
+    "start": "node src/scripts/seed.js && node src/server.js",
     "dev": "dotenv -e ../.env -- nodemon src/server.js",
     "seed": "dotenv -e ../.env -- node src/scripts/seed.js",
     "test": "jest",
