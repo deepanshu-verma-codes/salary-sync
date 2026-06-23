@@ -116,45 +116,45 @@ export default function PayslipsPage() {
         )}
       </div>
 
-      {showForm && (
-        <div className="glass-card rounded-2xl p-6 mb-8 animate-fade-in border border-blue-100">
-          <h3 className="text-lg font-semibold mb-4">Issue New Payslip</h3>
-          <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Issue New Payslip" maxWidth="max-w-2xl">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Employee</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Employee</label>
               <select required value={formData.employee_id} onChange={(e) => {
                 const empId = e.target.value;
                 const emp = employees.find(emp => emp.id.toString() === empId);
                 setFormData({...formData, employee_id: empId, amount: emp ? Math.round(emp.salary / 12).toString() : ''});
-              }} className="w-full px-4 py-2 rounded-xl border border-slate-300">
+              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 <option value="">Select Employee</option>
                 {employees.map(e => <option key={e.id} value={e.id}>{e.name} ({e.email})</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Month</label>
-              <select required value={formData.month} onChange={e => setFormData({...formData, month: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Month</label>
+              <select required value={formData.month} onChange={e => setFormData({...formData, month: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 {['January','February','March','April','May','June','July','August','September','October','November','December'].map(m => <option key={m}>{m}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Year</label>
-              <input type="number" required placeholder="Year" value={formData.year} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300" />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Year</label>
+              <input type="number" required placeholder="Year" value={formData.year} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Basic Salary (₹)</label>
-              <input type="number" required placeholder="Amount" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 disabled:bg-slate-100 disabled:text-slate-500" />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Basic Salary (₹)</label>
+              <input type="number" required placeholder="Amount" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Deductions (Tax/PF)</label>
-              <input type="number" required placeholder="Deductions" value={formData.deductions} onChange={e => setFormData({...formData, deductions: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300" />
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Deductions (Tax/PF)</label>
+              <input type="number" required placeholder="Deductions" value={formData.deductions} onChange={e => setFormData({...formData, deductions: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
-            <div className="sm:col-span-2 lg:col-span-5 flex justify-end mt-2">
-              <button type="submit" className="px-6 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800">Issue Payslip</button>
-            </div>
-          </form>
-        </div>
-      )}
+          </div>
+          <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
+            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">Issue Payslip</button>
+          </div>
+        </form>
+      </Modal>
 
       <div className="glass-card rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
