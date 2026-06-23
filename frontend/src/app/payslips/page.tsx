@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { getPayslips, createPayslip, getEmployees } from "@/lib/api";
+import { getPayslips, createPayslip, getEmployees, updatePayslip, deletePayslip } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
-import { Download, Plus, Eye, Loader2 } from "lucide-react";
+import { Download, Plus, Eye, Loader2, Pencil, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import Modal from "@/components/Modal";
 import LabelTooltip from "@/components/LabelTooltip";
@@ -20,10 +20,12 @@ export default function PayslipsPage() {
   
   // For HR to create payslip
   const [showForm, setShowForm] = useState(false);
+  const [editForm, setEditForm] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewPayslip, setViewPayslip] = useState<any>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [employees, setEmployees] = useState<any[]>([]);
-  const [formData, setFormData] = useState({ employee_id: '', month: 'January', year: 2026, amount: '' });
+  const [formData, setFormData] = useState({ employee_id: '', month: 'January', year: currentYear, amount: '' });
   const [deductions, setDeductions] = useState([{ name: 'Tax / PF', amount: 0 }]);
 
   const fetchData = useCallback(async () => {
@@ -59,6 +61,33 @@ export default function PayslipsPage() {
     } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.error || 'Error creating payslip');
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = { ...formData, deduction_details: deductions.filter(d => d.name && d.amount > 0) };
+      await updatePayslip(editForm.id, payload);
+      setEditForm(null);
+      fetchData();
+      toast.success('Payslip updated successfully!');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.error || 'Error updating payslip');
+    }
+  };
+
+  const executeDelete = async () => {
+    if (deleteId) {
+      try {
+        await deletePayslip(deleteId);
+        toast.success('Payslip deleted successfully');
+        fetchData();
+      } catch(err: any) {
+        toast.error(err.response?.data?.error || 'Failed to delete payslip');
+      }
+      setDeleteId(null);
     }
   };
 
@@ -104,6 +133,14 @@ export default function PayslipsPage() {
         </div>
       </Modal>
 
+      <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete Payslip">
+        <p className="text-slate-600 mb-6">Are you sure you want to delete this payslip? This action cannot be undone.</p>
+        <div className="flex justify-end gap-3">
+          <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
+          <button onClick={executeDelete} className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-xl transition-colors">Delete</button>
+        </div>
+      </Modal>
+
       {/* Hidden container for direct downloads */}
       <div className="absolute left-[-9999px] top-[-9999px]">
         {downloadingId && payslips.find(p => p.id === downloadingId) && (
@@ -119,22 +156,26 @@ export default function PayslipsPage() {
           <p className="text-slate-500 mt-2">Manage and download monthly salary slips.</p>
         </div>
         {(user?.role === 'ADMIN' || user?.role === 'SUBADMIN') && (
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
+          <button onClick={() => {
+            setFormData({ employee_id: '', month: 'January', year: currentYear, amount: '' });
+            setDeductions([{ name: 'Tax / PF', amount: 0 }]);
+            setShowForm(true);
+          }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
             <Plus className="w-5 h-5" /> Issue Payslip
           </button>
         )}
       </div>
 
-      <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Issue New Payslip" maxWidth="max-w-2xl">
-        <form onSubmit={handleCreate} className="space-y-4">
+      <Modal isOpen={showForm || editForm !== null} onClose={() => { setShowForm(false); setEditForm(null); }} title={editForm ? "Edit Payslip" : "Issue New Payslip"} maxWidth="max-w-2xl">
+        <form onSubmit={editForm ? handleUpdate : handleCreate} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <LabelTooltip label="Employee" tooltip="Select the employee receiving the payslip." />
-              <select required value={formData.employee_id} onChange={(e) => {
+              <select required disabled={editForm !== null} value={formData.employee_id} onChange={(e) => {
                 const empId = e.target.value;
                 const emp = employees.find(emp => emp.id.toString() === empId);
                 setFormData({...formData, employee_id: empId, amount: emp ? Math.round(emp.salary / 12).toString() : ''});
-              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500">
                 <option value="">Select Employee</option>
                 {employees.filter(e => e.role !== 'ADMIN').map(e => <option key={e.id} value={e.id}>{e.name} ({e.email})</option>)}
               </select>
@@ -191,8 +232,8 @@ export default function PayslipsPage() {
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
-            <button type="submit" disabled={!formData.employee_id || !formData.month || !formData.year || !formData.amount} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Issue Payslip</button>
+            <button type="button" onClick={() => { setShowForm(false); setEditForm(null); }} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
+            <button type="submit" disabled={!formData.employee_id || !formData.month || !formData.year || !formData.amount} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">{editForm ? "Save Changes" : "Issue Payslip"}</button>
           </div>
         </form>
       </Modal>
@@ -254,6 +295,23 @@ export default function PayslipsPage() {
                         {downloadingId === slip.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} 
                         Download
                       </button>
+                      {(user?.role === 'ADMIN' || user?.role === 'SUBADMIN') && (
+                        <>
+                          <button onClick={() => {
+                            setEditForm(slip);
+                            setFormData({ employee_id: slip.employee_id.toString(), month: slip.month, year: slip.year, amount: slip.amount.toString() });
+                            try {
+                              const parsed = JSON.parse(slip.deduction_details);
+                              setDeductions(parsed.length ? parsed : [{ name: '', amount: 0 }]);
+                            } catch (e) { setDeductions([{ name: '', amount: 0 }]); }
+                          }} className="flex items-center gap-1.5 text-slate-600 hover:text-blue-600 font-medium transition-colors">
+                            <Pencil className="w-4 h-4" /> Edit
+                          </button>
+                          <button onClick={() => setDeleteId(slip.id)} className="flex items-center gap-1.5 text-red-600 hover:text-red-800 font-medium transition-colors">
+                            <Trash2 className="w-4 h-4" /> Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

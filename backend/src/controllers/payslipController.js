@@ -53,4 +53,38 @@ const getPayslips = (req, res) => {
   }
 };
 
-module.exports = { createPayslip, getPayslips };
+const updatePayslip = (req, res) => {
+  const { id } = req.params;
+  const { month, year, amount, deduction_details } = req.body;
+  if (!month || !year || !amount) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const detailsArray = Array.isArray(deduction_details) ? deduction_details : [];
+  const totalDeductions = detailsArray.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const detailsJson = JSON.stringify(detailsArray);
+
+  if (totalDeductions >= amount) {
+    return res.status(400).json({ error: 'Total deductions cannot be greater than or equal to the Basic Salary' });
+  }
+
+  db.run(`UPDATE payslips SET month = ?, year = ?, amount = ?, deductions = ?, deduction_details = ? WHERE id = ?`,
+    [month, year, amount, totalDeductions, detailsJson, id],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: 'Payslip not found' });
+      res.json({ message: 'Payslip updated successfully' });
+    }
+  );
+};
+
+const deletePayslip = (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM payslips WHERE id = ?`, [id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Payslip not found' });
+    res.json({ message: 'Payslip deleted successfully' });
+  });
+};
+
+module.exports = { createPayslip, getPayslips, updatePayslip, deletePayslip };

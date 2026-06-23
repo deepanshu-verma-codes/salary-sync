@@ -104,3 +104,13 @@ export const getPayslips = async (employee_id?: number) => {
   const res = await api.get('/payslips', { params });
   return res.data;
 };
+
+export const updatePayslip = async (id: number, data: any) => {
+  const res = await api.put(`/payslips/${id}`, data);
+  return res.data;
+};
+
+export const deletePayslip = async (id: number) => {
+  const res = await api.delete(`/payslips/${id}`);
+  return res.data;
+};
