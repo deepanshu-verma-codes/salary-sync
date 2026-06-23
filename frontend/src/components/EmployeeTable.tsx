@@ -19,7 +19,7 @@ export default function EmployeeTable() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [isOtherDept, setIsOtherDept] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER', job_title: '', experience: 0, department: 'Engineering', country: 'USA', salary: 100000 });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER', job_title: '', experience: 0, department: 'Engineering', country: 'USA', salary: 100000, date_joined: new Date().toISOString().split('T')[0] });
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [roleUpdate, setRoleUpdate] = useState<{ id: number, role: 'SUBADMIN' | 'USER' } | null>(null);
@@ -201,6 +201,14 @@ export default function EmployeeTable() {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Yearly Salary (₹)</label>
               <input type="number" required placeholder="100000" value={formData.salary} onChange={e => setFormData({...formData, salary: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Country</label>
+              <input type="text" required placeholder="USA" value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Date Joined</label>
+              <input type="date" required value={formData.date_joined} onChange={e => setFormData({...formData, date_joined: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
