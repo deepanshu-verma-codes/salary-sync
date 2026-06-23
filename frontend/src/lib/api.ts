@@ -5,6 +5,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  if (config.method?.toLowerCase() === 'get') {
+    config.params = { ...config.params, _t: Date.now() };
+  }
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('token');
     if (token) {
