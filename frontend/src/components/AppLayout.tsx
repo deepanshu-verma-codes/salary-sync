@@ -42,18 +42,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">{user?.role} PANEL</p>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-4">
-          <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition-colors">
-            <LayoutDashboard className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${pathname.startsWith('/dashboard') ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-800 text-slate-300'}`}>
+            <LayoutDashboard className={`w-5 h-5 ${pathname.startsWith('/dashboard') ? 'text-white' : 'text-slate-400'}`} />
             <span className="font-medium">Dashboard</span>
           </Link>
           {(user?.role === 'ADMIN' || user?.role === 'SUBADMIN') && (
-            <Link href="/employees" className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition-colors">
-              <Users className="w-5 h-5 text-slate-400" />
+            <Link href="/employees" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${pathname.startsWith('/employees') ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-800 text-slate-300'}`}>
+              <Users className={`w-5 h-5 ${pathname.startsWith('/employees') ? 'text-white' : 'text-slate-400'}`} />
               <span className="font-medium">Employees</span>
             </Link>
           )}
-          <Link href="/payslips" className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition-colors">
-            <FileText className="w-5 h-5 text-slate-400" />
+          <Link href="/payslips" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${pathname.startsWith('/payslips') ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-800 text-slate-300'}`}>
+            <FileText className={`w-5 h-5 ${pathname.startsWith('/payslips') ? 'text-white' : 'text-slate-400'}`} />
             <span className="font-medium">Payslips</span>
           </Link>
         </nav>
