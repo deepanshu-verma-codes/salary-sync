@@ -111,7 +111,12 @@ export default function PayslipsPage() {
   const totalDeductions = deductions.reduce((sum, d) => sum + (d.amount || 0), 0);
   const netPay = (parseInt(formData.amount) || 0) - totalDeductions;
 
-  if (loading) return <div className="p-8">Loading payslips...</div>;
+  if (loading) return (
+    <div className="p-20 flex flex-col items-center justify-center space-y-4">
+      <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+      <p className="text-slate-500 font-semibold animate-pulse tracking-wide">Syncing payslips...</p>
+    </div>
+  );
 
   const displayedPayslips = user?.role === 'USER' ? payslips : payslips.filter(p => activeTab === 'PERSONAL' ? p.employee_id === user?.id : p.employee_id !== user?.id);
   
@@ -210,12 +215,21 @@ export default function PayslipsPage() {
               </div>
             )}
             {activeTab === 'COMPANY' && (
-              <button onClick={() => {
+              <button onClick={async () => {
                 setFormData({ employee_id: '', month: 'January', year: currentYear, amount: '' });
                 setDeductions([{ name: 'Tax / PF', amount: 0 }]);
                 setEmpSearchQuery('');
                 setShowEmpDropdown(false);
                 setShowForm(true);
+                
+                if (user?.role !== 'USER') {
+                  try {
+                    const res = await getEmployees({ limit: 1000 });
+                    setEmployees(res.data);
+                  } catch (err) {
+                    console.error("Failed to sync latest employees", err);
+                  }
+                }
               }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                 <Plus className="w-5 h-5" /> Issue Payslip
               </button>
