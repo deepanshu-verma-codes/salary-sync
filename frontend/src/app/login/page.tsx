@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isWakingUp, setIsWakingUp] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -16,6 +17,23 @@ export default function LoginPage() {
       router.push("/dashboard");
     }
   }, [router]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loading) {
+      timer = setTimeout(() => {
+        setIsWakingUp(true);
+        toast.loading("Waking up backend server (free tier)... This usually takes 20-30 seconds.", {
+          id: "wakeup-toast",
+          duration: 30000,
+        });
+      }, 3000);
+    } else {
+      setIsWakingUp(false);
+      toast.dismiss("wakeup-toast");
+    }
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +43,11 @@ export default function LoginPage() {
       localStorage.setItem("token", res.token);
       localStorage.setItem("refreshToken", res.refreshToken);
       localStorage.setItem("user", JSON.stringify(res.user));
+      toast.dismiss("wakeup-toast");
       toast.success("Login successful!");
       router.push("/dashboard");
     } catch (err: any) {
+      toast.dismiss("wakeup-toast");
       toast.error(err.response?.data?.error || "Login failed");
     }
     setLoading(false);
@@ -88,7 +108,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-2xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all hover:-translate-y-0.5 active:translate-y-0"
               >
-                {loading ? "Signing in..." : "Sign in to Dashboard"}
+                {loading ? (isWakingUp ? "Waking Backend (Takes ~30s)..." : "Signing in...") : "Sign in to Dashboard"}
               </button>
             </div>
           </form>
