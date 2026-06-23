@@ -38,7 +38,7 @@ async function seed() {
     await new Promise((resolve, reject) => {
       db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, experience, date_joined) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-        ['HR Manager', 'hr@yopmail.com', hrHash, 'SUBADMIN', 'HR Manager', 'HR', 'USA', 150000, 5, '2021-01-01'],
+        ['HR Manager', 'hr@yopmail.com', hrHash, 'SUBADMIN', 'HR Manager', 'HR', 'USA', 600000, 5, '2021-01-01'],
         err => err ? reject(err) : resolve()
       );
     });
@@ -62,8 +62,8 @@ async function seed() {
             faker.person.jobTitle(),
             dept,
             country,
-            Math.floor(Math.random() * 100000) + 40000,
-            Math.floor(Math.random() * 20) + 1,
+            Math.floor(Math.random() * 1500000) + 500000, // 5 lac to 20 lac
+            Math.floor(Math.random() * 20) + 1, // 1 to 20 years experience
             faker.date.past({ years: 10 }).toISOString().split('T')[0]
           );
         }
