@@ -1,4 +1,5 @@
 const { db } = require('../db/database');
+const bcrypt = require('bcryptjs');
 
 const getStats = (req, res) => {
   const query = `
@@ -72,7 +73,8 @@ const getEmployees = (req, res) => {
   const order = sortDir.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
   
   const countQuery = `SELECT COUNT(*) as total FROM employees ${whereSql}`;
-  const dataQuery = `SELECT * FROM employees ${whereSql} ORDER BY ${sortCol} ${order} LIMIT ? OFFSET ?`;
+  // don't select password
+  const dataQuery = `SELECT id, name, email, role, job_title, department, country, salary, date_joined FROM employees ${whereSql} ORDER BY ${sortCol} ${order} LIMIT ? OFFSET ?`;
   
   db.get(countQuery, params, (err, countRow) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -95,10 +97,48 @@ const getEmployees = (req, res) => {
 
 const getEmployeeById = (req, res) => {
   const { id } = req.params;
-  db.get('SELECT * FROM employees WHERE id = ?', [id], (err, row) => {
+  db.get('SELECT id, name, email, role, job_title, department, country, salary, date_joined FROM employees WHERE id = ?', [id], (err, row) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!row) return res.status(404).json({ error: 'Employee not found' });
     res.json(row);
+  });
+};
+
+const addUser = async (req, res) => {
+  const { name, email, password, role, job_title, department, country, salary, date_joined } = req.body;
+  
+  try {
+    const hash = await bcrypt.hash(password || 'User@123', 10);
+    const assignedRole = role || 'USER';
+
+    db.run(`INSERT INTO employees (name, email, password, role, job_title, department, country, salary, date_joined) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, email, hash, assignedRole, job_title || '', department || '', country || '', salary || 0, date_joined || new Date().toISOString().split('T')[0]],
+      function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID, name, email, role: assignedRole });
+      }
+    );
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteUser = (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM employees WHERE id = ?', [id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+    res.json({ success: true });
+  });
+};
+
+const updateRole = (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body; // e.g. SUBADMIN
+  db.run('UPDATE employees SET role = ? WHERE id = ?', [role, id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+    res.json({ success: true });
   });
 };
 
@@ -107,5 +147,8 @@ module.exports = {
   getDistributionByDepartment,
   getDistributionByCountry,
   getEmployees,
-  getEmployeeById
+  getEmployeeById,
+  addUser,
+  deleteUser,
+  updateRole
 };
