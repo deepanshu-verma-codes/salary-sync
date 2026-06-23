@@ -2,9 +2,9 @@ import { formatCurrency, cn } from './utils';
 
 describe('utils', () => {
   describe('formatCurrency', () => {
-    it('formats numbers as USD currency', () => {
-      expect(formatCurrency(1000)).toBe('$1,000');
-      expect(formatCurrency(5000000)).toBe('$5,000,000');
+    it('formats numbers as INR currency', () => {
+      expect(formatCurrency(1000)).toBe('₹1,000');
+      expect(formatCurrency(5000000)).toBe('₹50,00,000');
     });
   });
 
