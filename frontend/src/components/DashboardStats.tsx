@@ -65,7 +65,7 @@ export default function DashboardStats() {
       <div className="glass-card rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
         <h3 className="text-lg font-semibold text-slate-900 mb-6">Average Salary by Department</h3>
         <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={320}>
             <BarChart data={dist} margin={{ top: 10, right: 10, left: 20, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="department" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dy={10} />
