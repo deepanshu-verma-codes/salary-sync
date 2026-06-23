@@ -77,10 +77,10 @@ export default function EmployeeTable() {
     if (deleteId) {
       try {
         await deleteUser(deleteId);
-        toast.success('User deleted successfully');
+        toast.success('Employee deleted successfully');
         fetchData();
       } catch(err: any) {
-        toast.error(err.response?.data?.error || 'Failed to delete user');
+        toast.error(err.response?.data?.error || 'Failed to delete employee');
       }
       setDeleteId(null);
     }
@@ -104,10 +104,10 @@ export default function EmployeeTable() {
     try {
       await addUser(formData);
       setShowAdd(false);
-      toast.success('User added successfully');
+      toast.success('Employee added successfully');
       fetchData();
     } catch(err: any) {
-      toast.error(err.response?.data?.error || 'Failed to add user');
+      toast.error(err.response?.data?.error || 'Failed to add employee');
     }
   };
 
@@ -116,18 +116,18 @@ export default function EmployeeTable() {
     if (!editUserModal) return;
     try {
       await editUser(editUserModal.id, editFormData);
-      toast.success('User updated successfully');
+      toast.success('Employee updated successfully');
       setEditUserModal(null);
       fetchData();
     } catch(err: any) {
-      toast.error(err.response?.data?.error || 'Failed to update user');
+      toast.error(err.response?.data?.error || 'Failed to update employee');
     }
   };
 
   return (
     <div className="space-y-6">
-      <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete User">
-        <p className="text-slate-600 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
+      <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete Employee">
+        <p className="text-slate-600 mb-6">Are you sure you want to delete this employee? This action cannot be undone.</p>
         <div className="flex justify-end gap-3">
           <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
           <button onClick={executeDelete} className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-xl transition-colors">Delete</button>
@@ -137,8 +137,8 @@ export default function EmployeeTable() {
       <Modal isOpen={roleUpdate !== null} onClose={() => setRoleUpdate(null)} title={roleUpdate?.role === 'SUBADMIN' ? "Make Subadmin" : "Remove Subadmin"}>
         <p className="text-slate-600 mb-6">
           {roleUpdate?.role === 'SUBADMIN' 
-            ? "Are you sure you want to grant Subadmin privileges to this user?" 
-            : "Are you sure you want to remove Subadmin privileges from this user?"}
+            ? "Are you sure you want to grant Subadmin privileges to this employee?" 
+            : "Are you sure you want to remove Subadmin privileges from this employee?"}
         </p>
         <div className="flex justify-end gap-3">
           <button onClick={() => setRoleUpdate(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
@@ -146,7 +146,7 @@ export default function EmployeeTable() {
         </div>
       </Modal>
 
-      <Modal isOpen={editUserModal !== null} onClose={() => setEditUserModal(null)} title="Edit User">
+      <Modal isOpen={editUserModal !== null} onClose={() => setEditUserModal(null)} title="Edit Employee">
         <form onSubmit={handleEditSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
@@ -177,12 +177,12 @@ export default function EmployeeTable() {
         </div>
         {(user?.role === 'ADMIN' || user?.role === 'SUBADMIN') && (
           <button onClick={() => setShowAdd(!showAdd)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">
-            <UserPlus className="w-5 h-5" /> Add User
+            <UserPlus className="w-5 h-5" /> Add Employee
           </button>
         )}
       </div>
 
-      <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Add New User" maxWidth="max-w-2xl">
+      <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Add New Employee" maxWidth="max-w-2xl">
         <form onSubmit={handleAdd} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -200,7 +200,7 @@ export default function EmployeeTable() {
             <div>
               <LabelTooltip label="Role" tooltip="Admin/Subadmin have special dashboard access." />
               <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <option value="USER">User</option>
+                <option value="USER">Employee</option>
                 {user?.role === 'ADMIN' && <option value="SUBADMIN">Subadmin</option>}
               </select>
             </div>
@@ -253,7 +253,7 @@ export default function EmployeeTable() {
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
             <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
-            <button type="submit" disabled={!formData.name || !formData.email || !formData.password || !formData.job_title || !formData.department || formData.experience === '' || formData.salary === '' || !formData.country || !formData.date_joined} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save User</button>
+            <button type="submit" disabled={!formData.name || !formData.email || !formData.password || !formData.job_title || !formData.department || formData.experience === '' || formData.salary === '' || !formData.country || !formData.date_joined} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save Employee</button>
           </div>
         </form>
       </Modal>
