@@ -178,7 +178,7 @@ export default function EmployeeTable() {
               <input type="number" required placeholder="5" value={formData.experience} onChange={e => setFormData({...formData, experience: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Salary</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Yearly Salary (₹)</label>
               <input type="number" required placeholder="100000" value={formData.salary} onChange={e => setFormData({...formData, salary: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
           </div>
