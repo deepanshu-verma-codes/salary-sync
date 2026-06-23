@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Download, Plus, Eye, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import Modal from "@/components/Modal";
+import LabelTooltip from "@/components/LabelTooltip";
 import PayslipDocument from "@/components/PayslipDocument";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -125,7 +126,7 @@ export default function PayslipsPage() {
         <form onSubmit={handleCreate} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Employee</label>
+              <LabelTooltip label="Employee" tooltip="Select the employee receiving the payslip." />
               <select required value={formData.employee_id} onChange={(e) => {
                 const empId = e.target.value;
                 const emp = employees.find(emp => emp.id.toString() === empId);
@@ -136,25 +137,25 @@ export default function PayslipsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Month</label>
+              <LabelTooltip label="Month" tooltip="The month this salary covers." />
               <select required value={formData.month} onChange={e => setFormData({...formData, month: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 {['January','February','March','April','May','June','July','August','September','October','November','December'].map(m => <option key={m}>{m}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Year</label>
+              <LabelTooltip label="Year" tooltip="The year for this payslip." />
               <input type="number" required placeholder="Year" value={formData.year} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Gross Salary (₹)</label>
+              <LabelTooltip label="Gross Salary (₹)" tooltip="Monthly base pay. Auto-calculated from yearly salary." />
               <input type="number" required placeholder="Amount" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Net Pay (Auto-Calculated) (₹)</label>
+              <LabelTooltip label="Net Pay (Auto-Calculated) (₹)" tooltip="Gross Salary minus all Extra Deductions." />
               <input type="text" disabled value={netPay} className="w-full px-4 py-2 rounded-xl border border-green-200 bg-green-50 text-green-700 font-bold focus:outline-none" />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-2">Extra Deductions</label>
+              <LabelTooltip label="Extra Deductions" tooltip="Any taxes, provident fund, or miscellaneous deductions." />
               {deductions.map((d, index) => (
                 <div key={index} className="flex gap-2 mb-2">
                   <input type="text" placeholder="Reason (e.g. Tax)" value={d.name} onChange={e => {

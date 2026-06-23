@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Trash2, ShieldAlert, ShieldOff, UserPlus, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import Modal from "./Modal";
+import LabelTooltip from "./LabelTooltip";
 
 export default function EmployeeTable() {
   const [user, setUser] = useState<any>(null);
@@ -185,30 +186,30 @@ export default function EmployeeTable() {
         <form onSubmit={handleAdd} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+              <LabelTooltip label="Name" tooltip="The employee's full legal name." />
               <input type="text" required minLength={2} maxLength={50} pattern="^[a-zA-Z\s]+$" title="Name should only contain letters and spaces" placeholder="John Doe" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <LabelTooltip label="Email" tooltip="The official company email address." />
               <input type="email" required placeholder="john@example.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <LabelTooltip label="Password" tooltip="Must be at least 6 characters long." />
               <input type="password" required minLength={6} title="Password must be at least 6 characters long" placeholder="Min 6 characters" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+              <LabelTooltip label="Role" tooltip="Admin/Subadmin have special dashboard access." />
               <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 <option value="USER">User</option>
                 {user?.role === 'ADMIN' && <option value="SUBADMIN">Subadmin</option>}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Designation</label>
+              <LabelTooltip label="Designation" tooltip="Official job title (e.g. Software Engineer)." />
               <input type="text" required minLength={2} title="Designation is required" placeholder="Software Engineer" value={formData.job_title} onChange={e => setFormData({...formData, job_title: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
+              <LabelTooltip label="Department" tooltip="The team this employee belongs to." />
               {isOtherDept ? (
                 <div className="flex gap-2">
                   <input type="text" required minLength={2} placeholder="Type department..." value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
@@ -228,19 +229,19 @@ export default function EmployeeTable() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Experience (Years)</label>
+              <LabelTooltip label="Experience (Years)" tooltip="Total professional experience in years." />
               <input type="number" required min={0} max={60} title="Experience must be between 0 and 60 years" placeholder="5" value={formData.experience} onChange={e => setFormData({...formData, experience: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Yearly Salary (₹)</label>
+              <LabelTooltip label="Yearly Salary (₹)" tooltip="Total gross yearly salary before taxes/deductions." />
               <input type="number" required min={1000} maxLength={10} max={9999999999} onInput={e => { if(e.currentTarget.value.length > 10) e.currentTarget.value = e.currentTarget.value.slice(0, 10) }} title="Salary must be at least ₹1,000 and maximum 10 digits" placeholder="100000" value={formData.salary || ''} onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Country</label>
+              <LabelTooltip label="Country" tooltip="Employee's primary country of residence." />
               <input type="text" required minLength={2} pattern="^[a-zA-Z\s]+$" title="Country should only contain letters and spaces" placeholder="USA" value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Date Joined</label>
+              <LabelTooltip label="Date Joined" tooltip="Official date of joining the company." />
               <input type="date" required max={new Date().toISOString().split('T')[0]} title="Date joined cannot be in the future" value={formData.date_joined} onChange={e => setFormData({...formData, date_joined: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
           </div>
