@@ -49,8 +49,8 @@ export const deleteUser = async (id: number) => {
   return res.data;
 };
 
-export const makeSubadmin = async (id: number) => {
-  const res = await api.put(`/employees/${id}/role`, { role: 'SUBADMIN' });
+export const updateRole = async (id: number, role: string) => {
+  const res = await api.put(`/employees/${id}/role`, { role });
   return res.data;
 };
 

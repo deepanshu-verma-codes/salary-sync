@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getEmployees, deleteUser, makeSubadmin, addUser } from "@/lib/api";
+import { getEmployees, deleteUser, updateRole, addUser } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Trash2, ShieldAlert, UserPlus } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Trash2, ShieldAlert, ShieldOff, UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
 import Modal from "./Modal";
 
@@ -21,7 +21,7 @@ export default function EmployeeTable() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER', department: 'Engineering', country: 'USA', salary: 100000 });
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [subadminId, setSubadminId] = useState<number | null>(null);
+  const [roleUpdate, setRoleUpdate] = useState<{ id: number, role: 'SUBADMIN' | 'USER' } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -81,16 +81,16 @@ export default function EmployeeTable() {
     }
   };
 
-  const executeMakeSubadmin = async () => {
-    if (subadminId) {
+  const executeUpdateRole = async () => {
+    if (roleUpdate) {
       try {
-        await makeSubadmin(subadminId);
-        toast.success('Role updated to Subadmin');
+        await updateRole(roleUpdate.id, roleUpdate.role);
+        toast.success(`Role updated to ${roleUpdate.role}`);
         fetchData();
       } catch(err: any) {
         toast.error(err.response?.data?.error || 'Failed to update role');
       }
-      setSubadminId(null);
+      setRoleUpdate(null);
     }
   };
 
@@ -116,11 +116,15 @@ export default function EmployeeTable() {
         </div>
       </Modal>
 
-      <Modal isOpen={subadminId !== null} onClose={() => setSubadminId(null)} title="Make Subadmin">
-        <p className="text-slate-600 mb-6">Are you sure you want to grant Subadmin privileges to this user?</p>
+      <Modal isOpen={roleUpdate !== null} onClose={() => setRoleUpdate(null)} title={roleUpdate?.role === 'SUBADMIN' ? "Make Subadmin" : "Remove Subadmin"}>
+        <p className="text-slate-600 mb-6">
+          {roleUpdate?.role === 'SUBADMIN' 
+            ? "Are you sure you want to grant Subadmin privileges to this user?" 
+            : "Are you sure you want to remove Subadmin privileges from this user?"}
+        </p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setSubadminId(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
-          <button onClick={executeMakeSubadmin} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-colors">Confirm</button>
+          <button onClick={() => setRoleUpdate(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
+          <button onClick={executeUpdateRole} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-colors">Confirm</button>
         </div>
       </Modal>
 
@@ -205,9 +209,15 @@ export default function EmployeeTable() {
                     <td className="p-4 flex items-center gap-2">
                       {user?.role === 'ADMIN' && emp.role !== 'ADMIN' && (
                         <>
-                          <button onClick={() => setSubadminId(emp.id)} title="Make Subadmin" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <ShieldAlert className="w-4 h-4" />
-                          </button>
+                          {emp.role === 'SUBADMIN' ? (
+                            <button onClick={() => setRoleUpdate({ id: emp.id, role: 'USER' })} title="Remove from Subadmin" className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg">
+                              <ShieldOff className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <button onClick={() => setRoleUpdate({ id: emp.id, role: 'SUBADMIN' })} title="Make Subadmin" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                              <ShieldAlert className="w-4 h-4" />
+                            </button>
+                          )}
                           <button onClick={() => setDeleteId(emp.id)} title="Delete" className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
                             <Trash2 className="w-4 h-4" />
                           </button>
