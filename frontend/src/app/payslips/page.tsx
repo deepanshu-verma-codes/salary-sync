@@ -52,7 +52,7 @@ export default function PayslipsPage() {
         setActiveTab('COMPANY');
       }
       if (parsed.role !== 'USER') {
-        getEmployees({ limit: 1000 }).then(res => setEmployees(res.data));
+        getEmployees({ limit: 1000, sortBy: 'id', sortDir: 'DESC' }).then(res => setEmployees(res.data));
       }
     }
     fetchData();
@@ -224,7 +224,7 @@ export default function PayslipsPage() {
                 
                 if (user?.role !== 'USER') {
                   try {
-                    const res = await getEmployees({ limit: 1000 });
+                    const res = await getEmployees({ limit: 1000, sortBy: 'id', sortDir: 'DESC' });
                     setEmployees(res.data);
                   } catch (err) {
                     console.error("Failed to sync latest employees", err);
@@ -254,10 +254,25 @@ export default function PayslipsPage() {
                     required={!formData.employee_id}
                     placeholder="Search employee..."
                     value={empSearchQuery}
-                    onChange={(e) => {
-                      setEmpSearchQuery(e.target.value);
+                    onChange={async (e) => {
+                      const query = e.target.value;
+                      setEmpSearchQuery(query);
                       setShowEmpDropdown(true);
                       if (formData.employee_id) setFormData({...formData, employee_id: '', amount: ''});
+                      
+                      if (user?.role !== 'USER') {
+                        try {
+                          const res = await getEmployees({ 
+                            limit: 100, 
+                            search: query,
+                            sortBy: 'id', 
+                            sortDir: 'DESC' 
+                          });
+                          setEmployees(res.data);
+                        } catch (err) {
+                          console.error("Live search failed", err);
+                        }
+                      }
                     }}
                     onFocus={() => setShowEmpDropdown(true)}
                     className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
