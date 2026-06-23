@@ -192,7 +192,7 @@ export default function PayslipsPage() {
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
             <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
-            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">Issue Payslip</button>
+            <button type="submit" disabled={!formData.employee_id || !formData.month || !formData.year || !formData.amount} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Issue Payslip</button>
           </div>
         </form>
       </Modal>
