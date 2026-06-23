@@ -193,14 +193,14 @@ export default function PayslipsPage() {
               </select>
             </div>
             <div>
-              <LabelTooltip label="Gross Salary (₹)" tooltip="Monthly base pay. Auto-calculated from yearly salary." />
+              <LabelTooltip label="Total Salary (₹)" tooltip="Total gross salary." />
               <input type="text" inputMode="numeric" required placeholder="Amount" value={formData.amount} onChange={e => {
                 const val = e.target.value.replace(/\D/g, '');
                 setFormData({...formData, amount: val});
               }} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
             </div>
             <div>
-              <LabelTooltip label="Net Pay (Auto-Calculated) (₹)" tooltip="Gross Salary minus all Extra Deductions." />
+              <LabelTooltip label="Base Salary (Auto-Calculated) (₹)" tooltip="Total Salary minus all Extra Deductions." />
               <input type="text" disabled value={netPay} className="w-full px-4 py-2 rounded-xl border border-green-200 bg-green-50 text-green-700 font-bold focus:outline-none" />
             </div>
             <div className="sm:col-span-2">
