@@ -17,6 +17,7 @@ export default function EmployeeTable() {
   const [sortBy, setSortBy] = useState("id");
   const [sortDir, setSortDir] = useState("ASC");
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [showAdd, setShowAdd] = useState(false);
@@ -114,26 +115,35 @@ export default function EmployeeTable() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       await addUser(formData);
+      toast.success('Employee created successfully!');
       setShowAdd(false);
-      toast.success('Employee added successfully');
       fetchData();
-    } catch(err: any) {
-      toast.error(err.response?.data?.error || 'Failed to add employee');
+      setFormData({ name: '', email: '', password: '', role: 'USER', job_title: '', experience: 0, department: 'Engineering', country: 'USA', salary: 100000, date_joined: new Date().toISOString().split('T')[0] });
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to create employee');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (!editUserModal) return;
     try {
-      await editUser(editUserModal.id, editFormData);
-      toast.success('Employee updated successfully');
+      const payload: any = { name: editFormData.name, salary: editFormData.salary, experience: editFormData.experience };
+      if (editFormData.password) payload.password = editFormData.password;
+      await editUser(editUserModal.id, payload);
+      toast.success('Employee updated successfully!');
       setEditUserModal(null);
       fetchData();
-    } catch(err: any) {
+    } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to update employee');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -142,8 +152,10 @@ export default function EmployeeTable() {
       <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete Employee">
         <p className="text-slate-600 mb-6">Are you sure you want to delete this employee? This action cannot be undone.</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
-          <button onClick={executeDelete} className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-xl transition-colors">Delete</button>
+          <button onClick={() => setDeleteId(null)} disabled={isSubmitting} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-50">Cancel</button>
+          <button onClick={executeDelete} disabled={isSubmitting} className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            {isSubmitting ? 'Deleting...' : 'Delete'}
+          </button>
         </div>
       </Modal>
 
@@ -186,8 +198,10 @@ export default function EmployeeTable() {
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
-            <button type="button" onClick={() => setEditUserModal(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
-            <button type="submit" disabled={!editFormData.name} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save Changes</button>
+            <button type="button" onClick={() => setEditUserModal(null)} disabled={isSubmitting} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3 disabled:opacity-50">Cancel</button>
+            <button type="submit" disabled={!editFormData.name || isSubmitting} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </form>
       </Modal>
@@ -281,8 +295,10 @@ export default function EmployeeTable() {
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
-            <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
-            <button type="submit" disabled={!formData.name || !formData.email || !formData.password || !formData.job_title || !formData.department || !formData.country || !formData.date_joined} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save Employee</button>
+            <button type="button" onClick={() => setShowAdd(false)} disabled={isSubmitting} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3 disabled:opacity-50">Cancel</button>
+            <button type="submit" disabled={!formData.name || !formData.email || !formData.password || !formData.job_title || !formData.department || !formData.country || !formData.date_joined || isSubmitting} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {isSubmitting ? 'Saving...' : 'Save Employee'}
+            </button>
           </div>
         </form>
       </Modal>
