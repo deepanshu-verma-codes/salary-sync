@@ -19,7 +19,9 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Background gradients from globals.css will shine through */}
       <header className="px-8 py-6 flex justify-between items-center bg-white/40 backdrop-blur-md border-b border-white/60 shadow-sm relative z-10">
-        <h1 className="text-2xl font-black bg-gradient-to-br from-blue-600 to-indigo-600 bg-clip-text text-transparent">Salary Sync</h1>
+        <Link href="/">
+          <h1 className="text-2xl font-black bg-gradient-to-br from-blue-600 to-indigo-600 bg-clip-text text-transparent">Salary Sync</h1>
+        </Link>
         {user ? (
           <Link href="/dashboard" className="flex items-center gap-3 px-5 py-2 bg-white border border-slate-200 rounded-full hover:shadow-md transition-all group">
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-inner">

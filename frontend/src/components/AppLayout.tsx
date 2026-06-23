@@ -37,9 +37,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-64 bg-white/40 backdrop-blur-2xl border-r border-white/60 text-slate-900 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 hidden md:flex">
         <div className="p-6">
-          <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Salary Sync
-          </h1>
+          <Link href="/">
+            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Salary Sync
+            </h1>
+          </Link>
           <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">{user?.role} PANEL</p>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-4">
