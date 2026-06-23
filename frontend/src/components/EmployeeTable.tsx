@@ -18,6 +18,7 @@ export default function EmployeeTable() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [showAdd, setShowAdd] = useState(false);
+  const [isOtherDept, setIsOtherDept] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER', job_title: '', experience: 0, department: 'Engineering', country: 'USA', salary: 100000 });
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -172,6 +173,26 @@ export default function EmployeeTable() {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Designation</label>
               <input type="text" required placeholder="Software Engineer" value={formData.job_title} onChange={e => setFormData({...formData, job_title: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
+              {isOtherDept ? (
+                <div className="flex gap-2">
+                  <input type="text" required placeholder="Type department..." value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                  <button type="button" onClick={() => { setIsOtherDept(false); setFormData({...formData, department: 'Engineering'}); }} className="px-3 py-2 text-sm bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Cancel</button>
+                </div>
+              ) : (
+                <select value={formData.department} onChange={e => {
+                  if (e.target.value === 'Other') {
+                    setIsOtherDept(true);
+                    setFormData({...formData, department: ''});
+                  } else {
+                    setFormData({...formData, department: e.target.value});
+                  }
+                }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                  {['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Product', 'Support', 'Other'].map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Experience (Years)</label>
