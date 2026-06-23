@@ -144,11 +144,17 @@ export default function PayslipsPage() {
             </div>
             <div>
               <LabelTooltip label="Year" tooltip="The year for this payslip." />
-              <input type="number" required placeholder="Year" value={formData.year} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="text" inputMode="numeric" required maxLength={4} placeholder="Year" value={formData.year || ''} onChange={e => {
+                const val = e.target.value.replace(/\D/g, '');
+                setFormData({...formData, year: val === '' ? 0 : parseInt(val)});
+              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <LabelTooltip label="Gross Salary (₹)" tooltip="Monthly base pay. Auto-calculated from yearly salary." />
-              <input type="number" required placeholder="Amount" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
+              <input type="text" inputMode="numeric" required placeholder="Amount" value={formData.amount} onChange={e => {
+                const val = e.target.value.replace(/\D/g, '');
+                setFormData({...formData, amount: val});
+              }} disabled={user?.role !== 'ADMIN' && user?.role !== 'SUBADMIN'} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
             </div>
             <div>
               <LabelTooltip label="Net Pay (Auto-Calculated) (₹)" tooltip="Gross Salary minus all Extra Deductions." />
@@ -163,9 +169,10 @@ export default function PayslipsPage() {
                     newDeds[index].name = e.target.value;
                     setDeductions(newDeds);
                   }} className="w-1/2 px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-                  <input type="number" placeholder="Amount (₹)" value={d.amount || ''} onChange={e => {
+                  <input type="text" inputMode="numeric" placeholder="Amount (₹)" value={d.amount === 0 ? '' : d.amount} onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '');
                     const newDeds = [...deductions];
-                    newDeds[index].amount = parseInt(e.target.value) || 0;
+                    newDeds[index].amount = val === '' ? 0 : parseInt(val);
                     setDeductions(newDeds);
                   }} className="w-1/2 px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                   {index === deductions.length - 1 ? (

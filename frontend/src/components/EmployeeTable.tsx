@@ -230,11 +230,17 @@ export default function EmployeeTable() {
             </div>
             <div>
               <LabelTooltip label="Experience (Years)" tooltip="Total professional experience in years." />
-              <input type="number" required min={0} max={60} title="Experience must be between 0 and 60 years" placeholder="5" value={formData.experience} onChange={e => setFormData({...formData, experience: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="text" inputMode="numeric" required maxLength={2} title="Experience must be numeric" placeholder="5" value={formData.experience === 0 ? '' : formData.experience} onChange={e => {
+                const val = e.target.value.replace(/\D/g, '');
+                setFormData({...formData, experience: val === '' ? 0 : parseInt(val)});
+              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <LabelTooltip label="Yearly Salary (₹)" tooltip="Total gross yearly salary before taxes/deductions." />
-              <input type="number" required min={1000} maxLength={10} max={9999999999} onInput={e => { if(e.currentTarget.value.length > 10) e.currentTarget.value = e.currentTarget.value.slice(0, 10) }} title="Salary must be at least ₹1,000 and maximum 10 digits" placeholder="100000" value={formData.salary || ''} onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <input type="text" inputMode="numeric" required maxLength={10} title="Salary must be numeric" placeholder="100000" value={formData.salary || ''} onChange={e => {
+                const val = e.target.value.replace(/\D/g, '');
+                setFormData({...formData, salary: val === '' ? 0 : parseInt(val)});
+              }} className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
             <div>
               <LabelTooltip label="Country" tooltip="Employee's primary country of residence." />
