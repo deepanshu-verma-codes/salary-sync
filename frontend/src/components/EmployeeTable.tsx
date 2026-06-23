@@ -158,7 +158,7 @@ export default function EmployeeTable() {
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
             <button type="button" onClick={() => setEditUserModal(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
-            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">Save Changes</button>
+            <button type="submit" disabled={!editFormData.name} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save Changes</button>
           </div>
         </form>
       </Modal>
@@ -253,7 +253,7 @@ export default function EmployeeTable() {
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
             <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors mr-3">Cancel</button>
-            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">Save User</button>
+            <button type="submit" disabled={!formData.name || !formData.email || !formData.password || !formData.job_title || !formData.department || formData.experience === '' || formData.salary === '' || !formData.country || !formData.date_joined} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save User</button>
           </div>
         </form>
       </Modal>
