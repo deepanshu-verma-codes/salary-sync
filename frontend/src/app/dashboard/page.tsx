@@ -10,6 +10,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [payslips, setPayslips] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -22,9 +23,18 @@ export default function DashboardPage() {
         getPayslips().then(res => setPayslips(res)).catch(console.error);
       }
     }
+    setLoading(false);
   }, []);
 
-  if (!user) return <div className="p-8">Loading...</div>;
+  if (loading || !user) return (
+    <div className="p-8 max-w-7xl mx-auto w-full animate-pulse">
+      <div className="h-10 bg-slate-100 rounded-xl w-1/3 mb-4"></div>
+      <div className="h-4 bg-slate-100 rounded-xl w-1/2 mb-8"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-100 rounded-2xl"></div>)}
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-8 max-w-7xl mx-auto w-full animate-fade-in">
